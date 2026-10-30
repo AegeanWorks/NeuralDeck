@@ -284,7 +284,7 @@ python main.py
 1. Click **Select Document / Media** to choose a document, transcript (`.vtt`, `.srt`, `.json`), or podcast audio/video file
 2. Or click **Import URL / Media** and paste a YouTube, Apple Podcasts, RSS feed, website article, PDF, or direct transcript URL
 3. Or click **Browse Podcast** to paste an RSS feed or Apple Podcasts show URL and choose one of its transcribed episodes
-4. Click **Preview Transcript** to inspect the imported text before generating cards
+4. Click **Preview Transcript** to inspect imported text or extract a local file early; Generate reuses that text
 5. Select your target **Language** (e.g., English, Spanish, French)
 6. Choose which Anki decks the AI can assign cards to (or let Smart Deck Matching handle it)
 7. Configure **Card Density**:

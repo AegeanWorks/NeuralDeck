@@ -9,8 +9,8 @@
 - **Total Python Modules**: `32`
 - **Total Classes**: `67`
 - **Total Top-Level Functions**: `108`
-- **Total Class Methods**: `319`
-- **Total Source Lines**: `7304`
+- **Total Class Methods**: `323`
+- **Total Source Lines**: `7360`
 
 ---
 
@@ -682,7 +682,7 @@
 ---
 
 ### [`ui.py`](ui.py)
-**Size**: `1170` lines (`53033` bytes)
+**Size**: `1226` lines (`55331` bytes)
 
 **Classes:**
 - `class TextWidgetHandler` - *Custom logging handler that writes to a Tkinter ScrolledText widget thread-safely.*
@@ -720,7 +720,11 @@
   - Method `._set_import_busy(busy)`
   - Method `._apply_imported_transcript(result)`
   - Method `._reset_import_controls()`
-  - Method `.preview_transcript()` - *Show the text that will be sent to the LLM.*
+  - Method `.preview_transcript()` - *Show the text that will be sent to the LLM, extracting it if needed.*
+  - Method `._preview_file_worker(file_path)`
+  - Method `._preview_ready(file_path, text)`
+  - Method `._preview_failed(exc)`
+  - Method `._set_preview_busy(busy)`
   - Method `.start_processing()`
   - Method `.run_process(file_path, target_lang, api_url, api_key, model, temperature, max_tokens, prompt_style, deck_names, context_window, concurrency, card_density, filter_yes_no, exclude_trivia, smart_deck_match, ai_refinement, deterministic_mode, preloaded_text)`
   - Method `._finish_processing()`

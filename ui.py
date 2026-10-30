@@ -251,6 +251,7 @@ class AnkiGeneratorUI(ttk.Window):
         self.loaded_source_text = None
         self.loaded_source_title = None
         self.processing = False
+        self.preview_loading = False
         self.available_decks = []
         self.deck_vars = {}
         self.deck_checkboxes = []
@@ -701,6 +702,7 @@ class AnkiGeneratorUI(ttk.Window):
             self.selected_file_path = file_path
             self.loaded_source_text = None
             self.loaded_source_title = None
+            self.source_text = ""
             self.preview_btn.config(state="disabled")
             filename = os.path.basename(file_path)
             extension = os.path.splitext(filename)[1].lower()
@@ -836,17 +838,70 @@ class AnkiGeneratorUI(ttk.Window):
         self._set_import_busy(False)
 
     def preview_transcript(self):
-        """Show the text that will be sent to the LLM."""
+        """Show the text that will be sent to the LLM, extracting it if needed."""
         text = self.loaded_source_text or self.source_text
-        if not text:
-            messagebox.showinfo("Preview Transcript", "No transcript is loaded yet.")
+        if text:
+            title = self.loaded_source_title
+            if not title and self.selected_file_path:
+                title = os.path.basename(self.selected_file_path)
+            show_text_preview(self, title or "Source Text", text)
             return
-        title = self.loaded_source_title
-        if not title and self.selected_file_path:
-            title = os.path.basename(self.selected_file_path)
-        show_text_preview(self, title or "Source Text", text)
+
+        if not self.selected_file_path:
+            messagebox.showinfo("Preview Transcript", "No source is loaded yet.")
+            return
+        if self.preview_loading:
+            return
+
+        self._set_preview_busy(True)
+        self.logger.info("Extracting source text for preview...")
+        threading.Thread(
+            target=self._preview_file_worker,
+            args=(self.selected_file_path,),
+            daemon=True,
+        ).start()
+
+    def _preview_file_worker(self, file_path):
+        try:
+            if not is_audio_file(file_path):
+                ResourceGuard.check_file_size(file_path)
+            text = extract_text_from_document(file_path, log_callback=self.logger.info)
+        except Exception as exc:
+            self.after(0, lambda error=exc: self._preview_failed(error))
+            return
+        self.after(0, lambda value=text: self._preview_ready(file_path, value))
+
+    def _preview_ready(self, file_path, text):
+        self.loaded_source_text = text
+        self.loaded_source_title = os.path.basename(file_path)
+        self.source_text = text
+        self._set_preview_busy(False)
+        show_text_preview(self, self.loaded_source_title, text)
+
+    def _preview_failed(self, exc):
+        self.logger.error(f"Preview extraction failed: {exc}")
+        messagebox.showerror("Preview Failed", str(exc))
+        self._set_preview_busy(False)
+
+    def _set_preview_busy(self, busy):
+        self.preview_loading = busy
+        state = "disabled" if busy else "normal"
+        self.select_btn.config(state=state)
+        self.import_btn.config(state=state)
+        self.browse_btn.config(state=state)
+        if busy:
+            self.generate_btn.config(state="disabled")
+            self.preview_btn.config(state="disabled")
+            return
+        if not self.processing:
+            self.generate_btn.config(state="normal")
+        has_text = bool(self.loaded_source_text or self.source_text)
+        self.preview_btn.config(state="normal" if has_text else "disabled")
 
     def start_processing(self):
+        if self.preview_loading:
+            messagebox.showwarning("Warning", "Please wait for the preview extraction to finish.")
+            return
         if not self.selected_file_path and not self.loaded_source_text:
             messagebox.showwarning("Warning", "Please select a document, audio file, or import a transcript first.")
             return
@@ -883,6 +938,7 @@ class AnkiGeneratorUI(ttk.Window):
         self.stop_btn.config(state="normal")
         self.import_btn.config(state="disabled")
         self.browse_btn.config(state="disabled")
+        self.preview_btn.config(state="disabled")
         self.processing = True
         self.stop_requested = False
         self.logger.info("Starting processing...")
@@ -944,10 +1000,10 @@ class AnkiGeneratorUI(ttk.Window):
         self.processing = False
         self.generate_btn.config(state="normal")
         self.stop_btn.config(state="disabled")
+        self.select_btn.config(state="normal")
         self.import_btn.config(state="normal")
         self.browse_btn.config(state="normal")
-        if self.source_text:
-            self.preview_btn.config(state="normal")
+        self.preview_btn.config(state="normal" if self.source_text else "disabled")
 
     def clear_review_area(self):
         for row in self.card_rows:
