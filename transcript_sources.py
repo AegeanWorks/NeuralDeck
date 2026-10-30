@@ -204,6 +204,18 @@ def _fetch_json(url, max_bytes=1024 * 1024):
         ) from exc
 
 
+def _youtube_metadata(video_id):
+    """Read the public title and channel through YouTube's oEmbed endpoint."""
+    lookup_url = "https://www.youtube.com/oembed?" + urllib.parse.urlencode(
+        {"url": f"https://www.youtube.com/watch?v={video_id}", "format": "json"}
+    )
+    try:
+        payload = _fetch_json(lookup_url, max_bytes=256 * 1024)
+    except TranscriptError:
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
 def _apple_page_title(url):
     """Read the episode title from Apple's Open Graph metadata."""
     data, _, charset = _fetch_url_bytes(url, max_bytes=2 * 1024 * 1024)
@@ -391,11 +403,18 @@ def fetch_youtube_transcript(url_or_id, language="English", log_callback=None):
         )
 
     language_name = getattr(transcript, "language", None) or "unknown"
+    metadata = _youtube_metadata(video_id)
+    video_title = str(metadata.get("title") or "").strip()
+    channel = str(metadata.get("author_name") or "").strip()
+    if video_title and channel:
+        title = f"{video_title} — {channel}"
+    else:
+        title = video_title or f"YouTube video {video_id}"
     if log_callback:
         log_callback(f"YouTube captions found ({language_name}, {len(text)} characters).")
     return TranscriptResult(
         text=text,
-        title=f"YouTube video {video_id}",
+        title=title,
         source_url=f"https://www.youtube.com/watch?v={video_id}",
         kind="youtube",
     )

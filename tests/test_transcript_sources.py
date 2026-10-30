@@ -119,19 +119,38 @@ class TestYouTubeIds(unittest.TestCase):
 
 
 class TestYouTubeTranscript(unittest.TestCase):
-    def test_fetches_the_requested_track(self):
+    def test_fetches_the_requested_track_and_uses_oembed_metadata(self):
         fake_list = _FakeTranscriptList(transcript=_FakeTranscript("Hello from captions."))
         with patch.object(
             transcript_sources,
             "_load_youtube_transcript_api",
             return_value=(_fake_youtube_api(fake_list), RuntimeError),
+        ), patch.object(
+            transcript_sources,
+            "_youtube_metadata",
+            return_value={"title": "Memory and Sleep", "author_name": "Neuro Channel"},
         ):
             result = fetch_youtube_transcript("dQw4w9WgXcQ", language="Turkish")
 
         self.assertEqual(result.kind, "youtube")
         self.assertEqual(result.text, "Hello from captions.")
-        self.assertIn("dQw4w9WgXcQ", result.title)
+        self.assertEqual(result.title, "Memory and Sleep — Neuro Channel")
         self.assertEqual(result.source_url, "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
+    def test_oembed_failure_is_ignored(self):
+        with patch.object(transcript_sources, "_fetch_json", side_effect=TranscriptError("offline")):
+            self.assertEqual(transcript_sources._youtube_metadata("dQw4w9WgXcQ"), {})
+
+    def test_youtube_metadata_failure_falls_back_to_the_video_id(self):
+        fake_list = _FakeTranscriptList(transcript=_FakeTranscript("Hello from captions."))
+        with patch.object(
+            transcript_sources,
+            "_load_youtube_transcript_api",
+            return_value=(_fake_youtube_api(fake_list), RuntimeError),
+        ), patch.object(transcript_sources, "_youtube_metadata", return_value={}):
+            result = fetch_youtube_transcript("dQw4w9WgXcQ")
+
+        self.assertEqual(result.title, "YouTube video dQw4w9WgXcQ")
 
     def test_falls_back_to_any_available_track(self):
         class NoTranscriptFound(Exception):
@@ -145,7 +164,7 @@ class TestYouTubeTranscript(unittest.TestCase):
             transcript_sources,
             "_load_youtube_transcript_api",
             return_value=(_fake_youtube_api(fake_list), NoTranscriptFound),
-        ):
+        ), patch.object(transcript_sources, "_youtube_metadata", return_value={}):
             result = fetch_youtube_transcript("dQw4w9WgXcQ", language="Turkish")
         self.assertEqual(result.text, "Fallback captions.")
 

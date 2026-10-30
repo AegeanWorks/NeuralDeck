@@ -130,7 +130,7 @@ It's designed for students, researchers, and lifelong learners who want to autom
 |---------|-------------|
 | **Local First Processing** | Connects to any OpenAI-compatible local server, with a default setup for LM Studio. |
 | **Multi-Document Support** | Extracts text from PDF, Word (`.docx`), PowerPoint (`.pptx`), and plain text (`.txt`) files. |
-| **YouTube & Podcast Sources** | Imports YouTube captions, Podcasting 2.0 RSS transcripts, Apple Podcasts show/episode URLs, and `.vtt`/`.srt`/JSON transcript files; browse a feed's transcribed episodes and preview the text before generating cards. |
+| **YouTube & Podcast Sources** | Imports titled YouTube captions, Podcasting 2.0 RSS transcripts, Apple Podcasts URLs, and `.vtt`/`.srt`/JSON files; browse transcribed episodes and preview text before generating cards. |
 | **Smart Deck Matching** | Automatically categorizes generated cards into your existing Anki decks by analyzing content. |
 | **AI Refinement Mode** | Optional second AI pass for grammar correction, question clarity, and consistency. |
 | **High-Density Generation** | Forces exhaustive detail extraction for complex subjects like medicine or law. |
@@ -429,7 +429,7 @@ def main():
 | Function | Description |
 |----------|-------------|
 | `extract_youtube_video_id()` | Recognizes watch, shorts, live, embed and `youtu.be` URLs |
-| `fetch_youtube_transcript()` | Downloads the best public caption track via `youtube-transcript-api` |
+| `fetch_youtube_transcript()` | Downloads the best public caption track and labels it from oEmbed metadata |
 | `extract_apple_podcast_ids()` | Reads collection and episode ids from Apple Podcasts URLs |
 | `resolve_apple_podcast_url()` | Resolves an Apple show/episode page to its RSS feed |
 | `parse_podcast_feed_data()` | Parses an RSS feed into all transcribed episodes |
@@ -537,7 +537,7 @@ python -m pytest tests --cov=. --cov-report=html
 | Failure Isolation | `test_failure_isolation.py` | ✓ |
 | Deterministic Mode | `test_deterministic.py` | ✓ |
 
-**Total: 197 tests** (platform-specific tests are skipped when their prerequisite is absent)
+**Total: 199 tests** (platform-specific tests are skipped when their prerequisite is absent)
 
 ---
 
