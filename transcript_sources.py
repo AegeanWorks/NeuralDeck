@@ -7,7 +7,9 @@ through the Podcasting 2.0 ``<podcast:transcript>`` tag.
 
 import html
 import json
+import os
 import re
+import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -16,10 +18,13 @@ from dataclasses import dataclass
 from defusedxml import ElementTree as ET
 from defusedxml.common import DefusedXmlException
 
+from audio_transcription import AudioTranscriptionError, is_audio_file, is_video_file, transcribe_audio
 from transcript_formats import parse_transcript
 from web_extraction import extract_article
 
 MAX_SOURCE_BYTES = 10 * 1024 * 1024
+MAX_MEDIA_BYTES = 300 * 1024 * 1024
+MEDIA_CHUNK_BYTES = 1024 * 1024
 FETCH_TIMEOUT_SECONDS = 20
 USER_AGENT = "NeuralDeck/0.2 (+https://github.com/Aegean-E/NeuralDeck)"
 
@@ -661,6 +666,128 @@ def _url_filename(url):
     return urllib.parse.unquote(urllib.parse.urlparse(url).path.rsplit("/", 1)[-1])
 
 
+def _looks_like_media_url(url):
+    path = urllib.parse.urlparse(url).path
+    return is_audio_file(path) or is_video_file(path)
+
+
+def _remove_temp(path):
+    try:
+        os.remove(path)
+    except OSError:  # hygiene: allow cleanup of an already-removed temp file must not mask the transcription result
+        pass
+
+
+def _download_media_to_temp(url, log_callback=None, max_bytes=MAX_MEDIA_BYTES):
+    """Stream a bounded audio/video URL to a temporary local file."""
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise TranscriptError(
+            "The media URL is not a valid http(s) address.\n"
+            "Why: only web URLs can be imported.\n"
+            "Fix: paste a direct audio/video URL or select the file locally."
+        )
+
+    suffix = os.path.splitext(parsed.path)[1].lower() or ".bin"
+    fd, temp_path = tempfile.mkstemp(prefix="neuraldeck_media_", suffix=suffix)
+    if log_callback:
+        log_callback(f"Downloading media from {parsed.netloc}...")
+
+    total = 0
+    try:
+        request = urllib.request.Request(
+            url,
+            headers={"User-Agent": USER_AGENT, "Accept": "video/*,audio/*,*/*"},
+        )
+        with os.fdopen(fd, "wb") as output:
+            with urllib.request.urlopen(request, timeout=FETCH_TIMEOUT_SECONDS) as response:
+                content_type = (response.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+                if content_type.startswith(("text/", "application/json", "application/xml")):
+                    raise TranscriptError(
+                        "The URL returned a web page, not audio or video.\n"
+                        "Why: the link may be a player page, a login screen or a redirect.\n"
+                        "Fix: copy the direct media URL or download the file locally."
+                    )
+                while True:
+                    chunk = response.read(MEDIA_CHUNK_BYTES)
+                    if not chunk:
+                        break
+                    total += len(chunk)
+                    if total > max_bytes:
+                        raise TranscriptError(
+                            f"The media file is larger than {max_bytes // (1024 * 1024)} MB.\n"
+                            "Why: NeuralDeck bounds downloaded media to protect memory and disk.\n"
+                            "Fix: download the file and transcribe only the needed section."
+                        )
+                    output.write(chunk)
+    except TranscriptError:
+        _remove_temp(temp_path)
+        raise
+    except urllib.error.HTTPError as exc:
+        _remove_temp(temp_path)
+        raise TranscriptError(
+            f"The media URL returned HTTP {exc.code}.\n"
+            "Why: the link is private, expired or blocked for this client.\n"
+            "Fix: download the file locally and select it."
+        ) from exc
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        _remove_temp(temp_path)
+        raise TranscriptError(
+            f"Could not download the media: {exc}\n"
+            "Why: the server is unreachable or the connection timed out.\n"
+            "Fix: check the URL, or download the file locally."
+        ) from exc
+
+    if total == 0:
+        _remove_temp(temp_path)
+        raise TranscriptError(
+            "The media URL returned an empty file.\n"
+            "Why: the server sent no audio or video bytes.\n"
+            "Fix: check the link or download the file locally."
+        )
+    return temp_path, content_type
+
+
+def _media_transcript(url, log_callback=None):
+    temp_path = None
+    try:
+        temp_path, _ = _download_media_to_temp(url, log_callback=log_callback)
+        if log_callback:
+            log_callback("Transcribing downloaded media locally...")
+        text = transcribe_audio(temp_path, log_callback=log_callback)
+    except AudioTranscriptionError as exc:
+        raise TranscriptError(
+            "Local media transcription is unavailable.\n"
+            f"Why: {exc}\n"
+            "Fix: run `pip install -r requirements-transcription.txt`, or load a written transcript."
+        ) from exc
+    except TranscriptError:
+        raise
+    except Exception as exc:
+        raise TranscriptError(
+            f"Could not transcribe the downloaded media: {exc}\n"
+            "Why: the file may be corrupt or use an unsupported codec.\n"
+            "Fix: check the file locally, or load a written transcript."
+        ) from exc
+    finally:
+        if temp_path:
+            _remove_temp(temp_path)
+
+    if not text.strip():
+        raise TranscriptError(
+            "No speech was detected in the downloaded media.\n"
+            "Why: it may be silent, music-only or an unsupported codec.\n"
+            "Fix: try another URL or load a written transcript."
+        )
+    path = urllib.parse.urlparse(url).path
+    return TranscriptResult(
+        text=text,
+        title=_url_filename(url) or "Media file",
+        source_url=url,
+        kind="video" if is_video_file(path) else "audio",
+    )
+
+
 def _pdf_transcript(data, url, log_callback=None):
     from document_processor import extract_text_from_pdf_bytes
 
@@ -748,6 +875,9 @@ def fetch_transcript_from_url(url, language="English", log_callback=None):
         if ref is None:
             ref = _select_feed_episode(feed, language)
         return fetch_podcast_transcript_for_ref(ref, log_callback=log_callback)
+
+    if _looks_like_media_url(url):
+        return _media_transcript(url, log_callback=log_callback)
 
     data, content_type, charset = _fetch_url_bytes(url)
 

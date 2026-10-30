@@ -61,6 +61,13 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Decision**: Detect PDFs by content type, `.pdf` path or `%PDF-` magic before decoding, and reuse the existing PyPDF2 page loop through `extract_text_from_pdf_bytes`. Extract HTML pages with a small lxml-based `web_extraction` module: drop scripts/nav/header/footer/aside and class/id boilerplate, prefer `<article>`/`<main>`, keep readable paragraphs, and fall back to the existing transcript parser when article extraction is thin. URL downloads stay bounded at 10 MB and use the existing worker thread.
 - **Consequences**: PDF and article links can be pasted into the same import box; scanned PDFs still need OCR, paywalled or script-only pages can still fail with a Why/Fix message. No new dependency or persisted state is added.
 
+### ADR-008: Stream direct media URLs to a temporary file for local transcription
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: Direct video and audio URLs (lecture recordings, podcast MP3s) are common study sources, but the normal URL reader decodes responses as text and caps them at 10 MB. Transcribing from memory is not viable for media.
+- **Decision**: Detect media extensions in the URL path before the normal fetch, stream the response to a `mkstemp` file in 1 MB chunks, cap it at 300 MB, reject HTML/JSON/XML responses, and call the optional local faster-whisper adapter. Delete the temporary file in a `finally` block whether transcription succeeds or fails. The resulting card source is labeled `video` or `audio`.
+- **Consequences**: Direct media imports need the optional `requirements-transcription.txt` package and a first-run model download; a 300 MB cap bounds disk and time, and the temporary file is removed after one attempt. Player pages and non-extension media URLs still need the local-file path or a written transcript.
+
 ## Licensing migration (agpl-final)
 
 - New versions use the Aegean License 1.1 (AL-1.1); versions up to and including `agpl-final` remain under GNU AGPL-3.0.

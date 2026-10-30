@@ -8,7 +8,7 @@ import threading
 import os
 import time
 import logging
-from audio_transcription import is_audio_file
+from audio_transcription import is_audio_file, is_video_file
 from document_processor import extract_text_from_document, generate_qa_pairs
 from transcript_sources import (
     fetch_podcast_feed,
@@ -688,10 +688,10 @@ class AnkiGeneratorUI(ttk.Window):
 
     def select_file(self):
         filetypes = [
-            ("All Supported Sources", "*.pdf *.docx *.pptx *.txt *.srt *.vtt *.json *.mp3 *.m4a *.wav *.ogg *.flac *.mp4 *.mkv *.webm"),
+            ("All Supported Sources", "*.pdf *.docx *.pptx *.txt *.srt *.vtt *.json *.mp3 *.m4a *.wav *.ogg *.flac *.wma *.aac *.mp4 *.m4v *.mkv *.webm *.mov *.avi *.mpeg *.mpg"),
             ("Documents", "*.pdf *.docx *.pptx *.txt"),
             ("Transcripts", "*.srt *.vtt *.json *.txt"),
-            ("Podcast Audio / Video", "*.mp3 *.m4a *.wav *.ogg *.flac *.mp4 *.mkv *.webm"),
+            ("Podcast Audio / Video", "*.mp3 *.m4a *.wav *.ogg *.flac *.wma *.aac *.mp4 *.m4v *.mkv *.webm *.mov *.avi *.mpeg *.mpg"),
             ("PDF Files", "*.pdf"),
             ("Word Documents", "*.docx"),
             ("PowerPoint Presentations", "*.pptx"),
@@ -716,6 +716,8 @@ class AnkiGeneratorUI(ttk.Window):
             self.file_label.config(text=display_text)
             if extension in (".vtt", ".srt", ".json"):
                 self.emoji_label.config(text="📝")
+            elif is_video_file(filename):
+                self.emoji_label.config(text="🎬")
             elif is_audio_file(filename):
                 self.emoji_label.config(text="🎧")
             else:
@@ -727,7 +729,7 @@ class AnkiGeneratorUI(ttk.Window):
         url = simpledialog.askstring(
             "Import URL / Media",
             "Paste a YouTube, Apple Podcasts or podcast RSS URL,\n"
-            "a website article or PDF URL, or a .vtt/.srt/.txt/.json transcript URL:",
+            "a website article, PDF or direct video/audio URL, or a transcript URL:",
             parent=self,
         )
         if not url or not url.strip():

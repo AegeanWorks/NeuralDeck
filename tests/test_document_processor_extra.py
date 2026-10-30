@@ -70,6 +70,13 @@ class TestExtractTextFromDocument(unittest.TestCase):
         self.assertEqual(result, "Spoken content")
         mock_audio.assert_called_once_with("episode.mp3", None)
 
+    @patch('document_processor._extract_text_from_audio')
+    def test_extract_video_transcript(self, mock_audio):
+        mock_audio.return_value = "Spoken video content"
+        result = extract_text_from_document("lecture.mp4")
+        self.assertEqual(result, "Spoken video content")
+        mock_audio.assert_called_once_with("lecture.mp4", None)
+
     def test_unsupported_format(self):
         with self.assertRaises(ValueError) as cm:
             extract_text_from_document("test.xyz")

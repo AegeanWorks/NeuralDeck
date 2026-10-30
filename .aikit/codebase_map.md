@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `32`
 - **Total Classes**: `67`
-- **Total Top-Level Functions**: `108`
-- **Total Class Methods**: `323`
-- **Total Source Lines**: `7360`
+- **Total Top-Level Functions**: `113`
+- **Total Class Methods**: `330`
+- **Total Source Lines**: `7591`
 
 ---
 
@@ -48,13 +48,14 @@
 ### [`audio_transcription.py`](audio_transcription.py)
 > *Optional local podcast/video transcription through faster-whisper.*
 
-**Size**: `81` lines (`3213` bytes)
+**Size**: `89` lines (`3506` bytes)
 
 **Classes:**
 - `class AudioTranscriptionError` - *A user-facing local transcription failure with a Why/Fix message.*
 
 **Functions:**
 - `def is_audio_file(file_path)` - *Return True when the path has a supported audio/video extension.*
+- `def is_video_file(file_path)` - *Return True when the path has a supported video container extension.*
 - `def transcribe_audio(file_path, model_size, log_callback, stop_callback)` - *Transcribe a local audio/video file and return plain text.*
 
 ---
@@ -261,11 +262,12 @@
 ---
 
 ### [`tests/test_audio_transcription.py`](tests/test_audio_transcription.py)
-**Size**: `134` lines (`4672` bytes)
+**Size**: `143` lines (`5127` bytes)
 
 **Classes:**
 - `class TestAudioTranscription`
   - Method `.test_audio_extensions_are_recognized()`
+  - Method `.test_video_extensions_are_recognized_separately()`
   - Method `.test_missing_file_raises()`
   - Method `.test_unsupported_extension_raises()`
   - Method `.test_missing_faster_whisper_reports_the_optional_requirements_file()`
@@ -322,7 +324,7 @@
 ---
 
 ### [`tests/test_document_processor_extra.py`](tests/test_document_processor_extra.py)
-**Size**: `246` lines (`9807` bytes)
+**Size**: `253` lines (`10160` bytes)
 
 **Classes:**
 - `class TestExtractTextFromDocument`
@@ -334,6 +336,7 @@
   - Method `.test_extract_srt_transcript(mock_transcript)`
   - Method `.test_extract_json_transcript(mock_transcript)`
   - Method `.test_extract_audio_transcript(mock_audio)`
+  - Method `.test_extract_video_transcript(mock_audio)`
   - Method `.test_unsupported_format()`
 - `class TestExtractTextFromDocx`
   - Method `.test_docx_success(mock_document)`
@@ -500,7 +503,7 @@
 ---
 
 ### [`tests/test_transcript_sources.py`](tests/test_transcript_sources.py)
-**Size**: `553` lines (`24996` bytes)
+**Size**: `628` lines (`28707` bytes)
 
 **Classes:**
 - `class _FakeTranscript`
@@ -554,7 +557,12 @@
   - Method `.test_pdf_is_detected_from_magic_bytes()`
   - Method `.test_website_url_extracts_the_article_not_the_navigation()`
   - Method `.test_website_without_readable_text_is_reported()`
-  - Method `.test_audio_url_is_rejected_with_a_local_path_suggestion()`
+  - Method `.test_video_url_is_downloaded_and_transcribed()`
+  - Method `.test_audio_url_is_downloaded_and_transcribed()`
+  - Method `.test_missing_media_transcription_package_is_reported()`
+  - Method `.test_media_download_limit_is_enforced()`
+  - Method `.test_media_url_returning_html_is_rejected()`
+  - Method `.test_audio_content_type_without_a_media_extension_is_rejected()`
   - Method `.test_empty_url_is_rejected()`
   - Method `.test_http_error_is_wrapped()`
   - Method `.test_oversized_download_is_refused()`
@@ -629,7 +637,7 @@
 ### [`transcript_sources.py`](transcript_sources.py)
 > *Fetch card source transcripts from YouTube, podcast feeds and URLs.*
 
-**Size**: `787` lines (`29900` bytes)
+**Size**: `917` lines (`35266` bytes)
 
 **Classes:**
 - `class TranscriptError` - *A user-facing transcript failure that explains why and how to fix it.*
@@ -675,6 +683,10 @@
 - `def _looks_like_pdf(url, content_type, data)`
 - `def _looks_like_html(url, content_type, text)`
 - `def _url_filename(url)`
+- `def _looks_like_media_url(url)`
+- `def _remove_temp(path)`
+- `def _download_media_to_temp(url, log_callback, max_bytes)` - *Stream a bounded audio/video URL to a temporary local file.*
+- `def _media_transcript(url, log_callback)`
 - `def _pdf_transcript(data, url, log_callback)`
 - `def _web_transcript(raw, url, log_callback)`
 - `def fetch_transcript_from_url(url, language, log_callback)` - *Fetch a transcript from a YouTube link, podcast feed or transcript URL.*
@@ -682,7 +694,7 @@
 ---
 
 ### [`ui.py`](ui.py)
-**Size**: `1226` lines (`55331` bytes)
+**Size**: `1228` lines (`55526` bytes)
 
 **Classes:**
 - `class TextWidgetHandler` - *Custom logging handler that writes to a Tkinter ScrolledText widget thread-safely.*

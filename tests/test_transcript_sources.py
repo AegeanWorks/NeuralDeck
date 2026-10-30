@@ -1,5 +1,6 @@
 import os
 import sys
+import tempfile
 import unittest
 import urllib.error
 from unittest.mock import MagicMock, patch
@@ -510,14 +511,88 @@ class TestDirectTranscriptUrls(unittest.TestCase):
                 fetch_transcript_from_url("https://example.com/empty")
         self.assertIn("readable article text", str(raised.exception))
 
-    def test_audio_url_is_rejected_with_a_local_path_suggestion(self):
+    def test_video_url_is_downloaded_and_transcribed(self):
+        handle = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+        handle.close()
+        self.addCleanup(lambda: os.path.exists(handle.name) and os.remove(handle.name))
+        with patch.object(
+            transcript_sources,
+            "_download_media_to_temp",
+            return_value=(handle.name, "video/mp4"),
+        ), patch.object(transcript_sources, "transcribe_audio", return_value="Video transcript text."):
+            result = fetch_transcript_from_url("https://example.com/lecture.mp4")
+
+        self.assertEqual(result.kind, "video")
+        self.assertEqual(result.title, "lecture.mp4")
+        self.assertEqual(result.text, "Video transcript text.")
+        self.assertFalse(os.path.exists(handle.name))
+
+    def test_audio_url_is_downloaded_and_transcribed(self):
+        handle = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+        handle.close()
+        self.addCleanup(lambda: os.path.exists(handle.name) and os.remove(handle.name))
+        with patch.object(
+            transcript_sources,
+            "_download_media_to_temp",
+            return_value=(handle.name, "audio/mpeg"),
+        ), patch.object(transcript_sources, "transcribe_audio", return_value="Audio transcript text."):
+            result = fetch_transcript_from_url("https://example.com/episode.mp3")
+
+        self.assertEqual(result.kind, "audio")
+        self.assertEqual(result.text, "Audio transcript text.")
+
+    def test_missing_media_transcription_package_is_reported(self):
+        handle = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+        handle.close()
+        self.addCleanup(lambda: os.path.exists(handle.name) and os.remove(handle.name))
+        with patch.object(
+            transcript_sources,
+            "_download_media_to_temp",
+            return_value=(handle.name, "video/mp4"),
+        ), patch.object(
+            transcript_sources,
+            "transcribe_audio",
+            side_effect=transcript_sources.AudioTranscriptionError("not installed"),
+        ):
+            with self.assertRaises(TranscriptError) as raised:
+                fetch_transcript_from_url("https://example.com/lecture.mp4")
+        self.assertIn("requirements-transcription.txt", str(raised.exception))
+        self.assertFalse(os.path.exists(handle.name))
+
+    def test_media_download_limit_is_enforced(self):
+        headers = MagicMock()
+        headers.get.return_value = "video/mp4"
+        response = MagicMock()
+        response.read.side_effect = [b"12345", b""]
+        response.headers = headers
+        response.__enter__.return_value = response
+        response.__exit__.return_value = None
+        with patch.object(transcript_sources.urllib.request, "urlopen", return_value=response):
+            with self.assertRaises(TranscriptError) as raised:
+                transcript_sources._download_media_to_temp("https://example.com/video.mp4", max_bytes=4)
+        self.assertIn("larger than", str(raised.exception))
+
+    def test_media_url_returning_html_is_rejected(self):
+        headers = MagicMock()
+        headers.get.return_value = "text/html"
+        response = MagicMock()
+        response.read.return_value = b"<html></html>"
+        response.headers = headers
+        response.__enter__.return_value = response
+        response.__exit__.return_value = None
+        with patch.object(transcript_sources.urllib.request, "urlopen", return_value=response):
+            with self.assertRaises(TranscriptError) as raised:
+                transcript_sources._download_media_to_temp("https://example.com/video.mp4")
+        self.assertIn("web page", str(raised.exception))
+
+    def test_audio_content_type_without_a_media_extension_is_rejected(self):
         with patch.object(
             transcript_sources,
             "_fetch_url_bytes",
             return_value=(b"ID3", "audio/mpeg", "utf-8"),
         ):
             with self.assertRaises(TranscriptError) as raised:
-                fetch_transcript_from_url("https://example.com/episode.mp3")
+                fetch_transcript_from_url("https://example.com/download")
         self.assertIn("local transcription", str(raised.exception))
 
     def test_empty_url_is_rejected(self):

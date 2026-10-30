@@ -115,7 +115,7 @@ It's designed for students, researchers, and lifelong learners who want to autom
 - **🔒 Private by Default**: Document, audio, and card processing happens locally. A URL import downloads only the transcript text you request; your files and audio are never uploaded.
 - **🤖 LLM-Powered**: Utilizes state-of-the-art local LLMs (like Llama 3, Mistral, or Phi-3 via LM Studio) to understand context and generate accurate, relevant questions.
 - **🔧 Fully Controllable**: A comprehensive UI allows you to review, edit, approve, or discard every single card before it's synced to Anki.
-- **🌐 Multi-Format Support**: Handles `.pdf`, `.docx`, `.pptx`, `.txt`, `.vtt`, `.srt`, transcript `.json`, podcast audio/video, PDF URLs and website articles.
+- **🌐 Multi-Format Support**: Handles `.pdf`, `.docx`, `.pptx`, `.txt`, `.vtt`, `.srt`, transcript `.json`, podcast audio/video, direct media URLs, PDF URLs and website articles.
 - **🎙️ YouTube & Podcasts**: Imports YouTube captions and Podcasting 2.0 RSS transcripts, with optional local Whisper transcription for episodes that have no written transcript.
 - **🔌 Seamless Anki Integration**: A custom Anki add-on provides a direct bridge for one-click synchronization.
 - **⚡ High Performance**: Multi-threaded processing with intelligent concurrency control.
@@ -131,7 +131,7 @@ It's designed for students, researchers, and lifelong learners who want to autom
 |---------|-------------|
 | **Local First Processing** | Connects to any OpenAI-compatible local server, with a default setup for LM Studio. |
 | **Multi-Document Support** | Extracts text from PDF, Word (`.docx`), PowerPoint (`.pptx`), and plain text (`.txt`) files. |
-| **YouTube, Web & Podcast Sources** | Imports YouTube captions, podcast RSS/Apple URLs, website articles, PDF URLs, and `.vtt`/`.srt`/JSON transcripts; browse episodes and preview text. |
+| **YouTube, Web & Podcast Sources** | Imports YouTube captions, podcast/Apple URLs, website articles, PDFs, direct audio/video URLs, and transcripts; browse episodes and preview text. |
 | **Smart Deck Matching** | Automatically categorizes generated cards into your existing Anki decks by analyzing content. |
 | **AI Refinement Mode** | Optional second AI pass for grammar correction, question clarity, and consistency. |
 | **High-Density Generation** | Forces exhaustive detail extraction for complex subjects like medicine or law. |
@@ -282,7 +282,7 @@ python main.py
 ### Step 4: Generate Cards
 
 1. Click **Select Document / Media** to choose a document, transcript (`.vtt`, `.srt`, `.json`), or podcast audio/video file
-2. Or click **Import URL / Media** and paste a YouTube, Apple Podcasts, RSS feed, website article, PDF, or direct transcript URL
+2. Or click **Import URL / Media** and paste a YouTube, Apple Podcasts, RSS, website, PDF, direct audio/video, or transcript URL
 3. Or click **Browse Podcast** to paste an RSS feed or Apple Podcasts show URL and choose one of its transcribed episodes
 4. Click **Preview Transcript** to inspect imported text or extract a local file early; Generate reuses that text
 5. Select your target **Language** (e.g., English, Spanish, French)
@@ -303,8 +303,9 @@ python main.py
 | Website article | Paste a normal article URL | Main article text is extracted; navigation, scripts, cookie banners and related links are removed. |
 | PDF URL | Paste a direct `.pdf` link | Extracted with PyPDF2. Scanned PDFs still need OCR; local PDFs also work via **Select Document / Media**. |
 | Direct transcript | Paste a `.vtt`, `.srt`, `.txt`, `.json` or HTML transcript URL | Only the transcript text is downloaded. |
+| Direct audio/video URL | Paste a URL ending in `.mp3`, `.mp4`, `.mkv`, `.webm`, `.mov`, etc. | Downloaded to a temporary local file (max 300 MB), transcribed with Whisper, then deleted. |
 | Transcript file | Select it with **Select Document / Media** | Best option when a site blocks automated access. |
-| Podcast audio/video | Select the local file | Requires `requirements-transcription.txt`; processing stays local. |
+| Local audio/video | Select the local file | Requires `requirements-transcription.txt`; processing stays local. |
 
 > Spotify episode pages are not RSS feeds; copy the show's RSS address or download the audio for local transcription.
 
@@ -437,7 +438,9 @@ def main():
 | `fetch_podcast_transcript()` | Downloads the newest transcribed episode from a feed |
 | `_pdf_transcript()` | Extracts text from a downloaded PDF |
 | `_web_transcript()` | Extracts the readable body of a web article |
-| `fetch_transcript_from_url()` | Dispatches YouTube, podcast, PDF, website and direct transcript URLs |
+| `_download_media_to_temp()` | Streams a bounded audio/video URL to a temporary file |
+| `_media_transcript()` | Transcribes downloaded media locally and deletes the temp file |
+| `fetch_transcript_from_url()` | Dispatches YouTube, podcast, PDF, website, media and transcript URLs |
 
 #### `web_extraction.py` - Website Articles
 
@@ -460,7 +463,8 @@ def main():
 
 | Function | Description |
 |----------|-------------|
-| `is_audio_file()` | Recognizes supported podcast/video extensions |
+| `is_audio_file()` | Recognizes supported audio/video extensions |
+| `is_video_file()` | Separates video containers from audio for UI labels |
 | `transcribe_audio()` | Lazily loads faster-whisper and transcribes locally |
 
 #### `pipeline_utils.py` - Utilities
@@ -495,7 +499,7 @@ def main():
 
 ```text
 Document (.pdf/.docx/.pptx/.txt), transcript (.vtt/.srt/.json), podcast audio/video
-YouTube URL, podcast RSS/Apple URL, website article, PDF URL, direct transcript URL
+YouTube URL, podcast RSS/Apple URL, website article, PDF URL, direct audio/video URL, transcript URL
   -> document_processor / transcript_sources / web_extraction: extract plain text
   -> Preview Transcript: inspect the source before generation
   -> document_processor: chunk, generate cards through the local LLM
@@ -545,7 +549,7 @@ python -m pytest tests --cov=. --cov-report=html
 | Failure Isolation | `test_failure_isolation.py` | ✓ |
 | Deterministic Mode | `test_deterministic.py` | ✓ |
 
-**Total: 214 tests** (platform-specific tests are skipped when their prerequisite is absent)
+**Total: 221 tests** (platform-specific tests are skipped when their prerequisite is absent)
 
 ---
 
@@ -555,15 +559,7 @@ python -m pytest tests --cov=. --cov-report=html
 
 **Symptoms**: "Could not connect to Anki" error when fetching decks or syncing.
 
-**Solutions**:
-1. Ensure Anki is open and a profile is loaded
-2. Verify the **NeuralDeck Bridge** add-on is installed in **Tools > Add-ons**
-3. Check if port 5005 is available:
-   ```bash
-   netstat -an | grep 5005
-   ```
-4. Change port in add-on config if needed
-5. Restart Anki
+**Solutions**: ensure Anki is open with a profile, the **NeuralDeck Bridge** add-on is installed, port 5005 is free, and the add-on port matches; then restart Anki.
 
 ### PDF Text Not Found
 
@@ -586,6 +582,16 @@ python -m pytest tests --cov=. --cov-report=html
 3. Save the article as a `.txt`/PDF and load it locally.
 4. Script-only pages need the browser-rendered text; copy it into a text file.
 
+### Video or Audio URL Fails
+
+**Symptoms**: "Local media transcription is unavailable" or a download error.
+
+**Solutions**:
+1. Run `pip install -r requirements-transcription.txt`; the first transcription downloads the model.
+2. Use a direct media URL ending in `.mp3`, `.mp4`, `.mkv`, `.webm` or `.mov`, not a player page.
+3. Downloads are capped at **300 MB**; download larger files and split them.
+4. Check that the file plays locally and uses a supported codec.
+
 ### YouTube Captions Unavailable
 
 **Symptoms**: "Could not fetch captions for YouTube video..." or a request-blocked error.
@@ -607,16 +613,6 @@ python -m pytest tests --cov=. --cov-report=html
 2. Paste a direct transcript URL instead of the feed.
 3. Download the episode audio and select it for local transcription after installing `requirements-transcription.txt`.
 
-### Audio Transcription Is Missing
-
-**Symptoms**: "Local audio transcription is not installed."
-
-**Solutions**:
-1. Run `pip install -r requirements-transcription.txt`.
-2. Restart NeuralDeck after installing.
-3. The first transcription downloads a Whisper model; an offline machine must pre-download it.
-4. Select a `.vtt`/`.srt` transcript instead if one is available.
-
 ### LLM Connection Error
 
 **Symptoms**: "Connection Failed to http://localhost:1234..."
@@ -635,15 +631,6 @@ python -m pytest tests --cov=. --cov-report=html
 1. Reduce **Concurrency** to 1
 2. Use **Low** Card Density
 3. Split large documents into smaller files
-
-### Cards Not Appearing in Correct Deck
-
-**Symptoms**: Cards sync but go to wrong deck.
-
-**Solutions**:
-1. Disable **Smart Deck Matching** for manual assignment
-2. Check deck names in Anki for exact matches
-3. Review card deck assignment in UI before sync
 
 ---
 
@@ -667,12 +654,6 @@ For a build that also transcribes local audio, add `--collect-all faster_whisper
 
 The executable is created at `dist/NeuralDeck.exe` on Windows.
 
-### Build Requirements
-
-- Windows 10+ (for .exe)
-- Python 3.10+
-- All requirements installed
-
 ---
 
 ## Security
@@ -688,7 +669,7 @@ The executable is created at `dist/NeuralDeck.exe` on Windows.
 | Data | Location | Encryption |
 |------|----------|------------|
 | Documents | RAM only | N/A |
-| Audio / video | Decoded locally; never uploaded | N/A |
+| Audio / video | Decoded locally; a direct URL is downloaded to a temp file and deleted after transcription | N/A |
 | Imported transcripts | RAM only | N/A |
 | YouTube / podcast URLs | Sent to their hosts to fetch transcript text | HTTPS where offered |
 | Generated Cards | `session_cache.json` beside the resolved config | None |
@@ -701,23 +682,7 @@ The executable is created at `dist/NeuralDeck.exe` on Windows.
 
 ## Contributing
 
-Contributions are welcome! Here's how you can help:
-
-### Reporting Issues
-
-1. Check existing issues before creating new ones
-2. Include steps to reproduce
-3. Attach relevant logs (enable Debug Mode)
-4. Specify OS, Python version, and Anki version
-
-### Pull Requests
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Update documentation
-6. Submit pull request
+Contributions are welcome. Check existing issues, include reproduction steps and logs (enable Debug Mode), and name your OS, Python and Anki versions. Pull requests need a feature branch, tests for new behavior, a green `python -m pytest tests`, and updated documentation.
 
 ---
 

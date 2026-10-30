@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from audio_transcription import (
     AudioTranscriptionError,
     is_audio_file,
+    is_video_file,
     transcribe_audio,
 )
 
@@ -28,6 +29,14 @@ class TestAudioTranscription(unittest.TestCase):
                 self.assertTrue(is_audio_file(name))
         self.assertFalse(is_audio_file("document.pdf"))
         self.assertFalse(is_audio_file("transcript.vtt"))
+
+    def test_video_extensions_are_recognized_separately(self):
+        for name in ("lecture.mp4", "clip.M4V", "talk.mkv", "clip.webm", "movie.mov", "old.avi", "talk.mpeg"):
+            with self.subTest(name=name):
+                self.assertTrue(is_video_file(name))
+                self.assertTrue(is_audio_file(name))
+        self.assertFalse(is_video_file("episode.mp3"))
+        self.assertFalse(is_video_file("transcript.vtt"))
 
     def test_missing_file_raises(self):
         with self.assertRaises(FileNotFoundError):

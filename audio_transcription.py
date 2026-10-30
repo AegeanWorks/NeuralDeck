@@ -2,15 +2,17 @@
 
 Audio is decoded and transcribed on the local machine. The model is downloaded
 on first use, then cached by faster-whisper. The base application works without
-this optional dependency; only audio files need it.
+this optional dependency; only media files need it.
 """
 
 import os
 
+VIDEO_EXTENSIONS = {
+    ".mp4", ".m4v", ".mkv", ".webm", ".mov", ".avi", ".mpeg", ".mpg",
+}
 SUPPORTED_AUDIO_EXTENSIONS = {
     ".mp3", ".m4a", ".wav", ".ogg", ".oga", ".flac", ".aac", ".wma",
-    ".mp4", ".mkv", ".webm", ".mov",
-}
+} | VIDEO_EXTENSIONS
 
 
 class AudioTranscriptionError(Exception):
@@ -23,13 +25,19 @@ def is_audio_file(file_path):
     return extension in SUPPORTED_AUDIO_EXTENSIONS
 
 
+def is_video_file(file_path):
+    """Return True when the path has a supported video container extension."""
+    extension = os.path.splitext(os.fspath(file_path))[1].lower()
+    return extension in VIDEO_EXTENSIONS
+
+
 def transcribe_audio(file_path, model_size="base", log_callback=None, stop_callback=None):
     """Transcribe a local audio/video file and return plain text."""
     path = os.fspath(file_path)
     if not os.path.isfile(path):
-        raise FileNotFoundError(f"Audio file not found: {path}")
+        raise FileNotFoundError(f"Media file not found: {path}")
     if not is_audio_file(path):
-        raise ValueError(f"Unsupported audio file type: {os.path.splitext(path)[1]}")
+        raise ValueError(f"Unsupported media file type: {os.path.splitext(path)[1]}")
 
     try:
         from faster_whisper import WhisperModel
