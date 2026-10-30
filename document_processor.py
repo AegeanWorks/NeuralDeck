@@ -1,3 +1,4 @@
+import io
 import json
 import random
 import time
@@ -30,62 +31,46 @@ except ImportError:
     Presentation = None
 
 
-def extract_text_from_pdf(file_path, log_callback=None):
-    """
-    Extracts text from a PDF file.
-    """
-    if PyPDF2 is None:
-        raise ImportError("PyPDF2 module not found. Please install it using 'pip install PyPDF2'.")
-        
+def _extract_text_from_pdf_reader(reader, log_callback=None):
+    """Extract text from an already opened PyPDF2 reader."""
     text_parts = []
     empty_pages = []
-    total_pages = 0
 
-    try:
-        with open(file_path, 'rb') as file:
-            reader = PyPDF2.PdfReader(file)
-            
-            # Attempt to handle encrypted files with empty password
-            if reader.is_encrypted:
-                try:
-                    reader.decrypt("")
-                except Exception:  # hygiene: allow decryption errors only mean the PDF stays encrypted
-                    pass
-            
-            # If no pages, raise error
-            if not reader.pages:
-                raise Exception("PDF appears to be empty or corrupted (0 pages found).")
+    # Attempt to handle encrypted files with empty password
+    if reader.is_encrypted:
+        try:
+            reader.decrypt("")
+        except Exception:  # hygiene: allow decryption errors only mean the PDF stays encrypted
+            pass
 
-            total_pages = len(reader.pages)
-            for i, page in enumerate(reader.pages):
-                try:
-                    extracted = page.extract_text()
-                    if extracted and extracted.strip():
-                        # Append parts to list for O(N) performance instead of O(N^2) string concatenation
-                        text_parts.append(extracted)
-                        text_parts.append("\n")
-                    else:
-                        empty_pages.append(i + 1)
-                        # Add placeholder for layout preservation context
-                        text_parts.append(f"\n[PAGE {i+1}: NO TEXT DETECTED - SCANNED?]\n")
-                        msg = f"Warning: Page {i+1} yielded no text (likely scanned or image)."
-                        if log_callback: log_callback(msg)
-                        else: print(msg)
+    if not reader.pages:
+        raise Exception("PDF appears to be empty or corrupted (0 pages found).")
 
-                except Exception as page_error:
-                    # Log warning for specific page failure but continue
-                    msg = f"Warning: Failed to extract text from page {i+1}: {page_error}"
-                    if log_callback: log_callback(msg)
-                    else: print(msg)
+    total_pages = len(reader.pages)
+    for i, page in enumerate(reader.pages):
+        try:
+            extracted = page.extract_text()
+            if extracted and extracted.strip():
+                # Append parts to list for O(N) performance instead of O(N^2) string concatenation
+                text_parts.append(extracted)
+                text_parts.append("\n")
+            else:
+                empty_pages.append(i + 1)
+                # Add placeholder for layout preservation context
+                text_parts.append(f"\n[PAGE {i+1}: NO TEXT DETECTED - SCANNED?]\n")
+                msg = f"Warning: Page {i+1} yielded no text (likely scanned or image)."
+                if log_callback: log_callback(msg)
+                else: print(msg)
 
-                    empty_pages.append(i + 1)
-                    text_parts.append(f"\n[PAGE {i+1}: EXTRACTION FAILED]\n")
-                    continue
+        except Exception as page_error:
+            # Log warning for specific page failure but continue
+            msg = f"Warning: Failed to extract text from page {i+1}: {page_error}"
+            if log_callback: log_callback(msg)
+            else: print(msg)
 
-    except FileNotFoundError:
-        raise FileNotFoundError(f"PDF file not found: {file_path}")
-    except Exception as e:
-        raise Exception(f"Failed to read PDF: {e}")
+            empty_pages.append(i + 1)
+            text_parts.append(f"\n[PAGE {i+1}: EXTRACTION FAILED]\n")
+            continue
 
     full_text = "".join(text_parts)
 
@@ -94,6 +79,33 @@ def extract_text_from_pdf(file_path, log_callback=None):
         raise Exception("No text could be extracted from this PDF. It appears to be entirely scanned images or encrypted. Please use an external OCR tool first.")
 
     return full_text
+
+
+def extract_text_from_pdf(file_path, log_callback=None):
+    """Extract text from a PDF file."""
+    if PyPDF2 is None:
+        raise ImportError("PyPDF2 module not found. Please install it using 'pip install PyPDF2'.")
+
+    try:
+        with open(file_path, 'rb') as file:
+            reader = PyPDF2.PdfReader(file)
+            return _extract_text_from_pdf_reader(reader, log_callback)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"PDF file not found: {file_path}")
+    except Exception as e:
+        raise Exception(f"Failed to read PDF: {e}")
+
+
+def extract_text_from_pdf_bytes(data, log_callback=None):
+    """Extract text from PDF bytes downloaded from a URL."""
+    if PyPDF2 is None:
+        raise ImportError("PyPDF2 module not found. Please install it using 'pip install PyPDF2'.")
+
+    try:
+        reader = PyPDF2.PdfReader(io.BytesIO(data))
+        return _extract_text_from_pdf_reader(reader, log_callback)
+    except Exception as e:
+        raise Exception(f"Failed to read PDF bytes: {e}")
 
 def _extract_text_from_docx(file_path):
     """Extracts text from a .docx file."""

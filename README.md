@@ -84,6 +84,7 @@ NeuralDeck/
 ├── document_processor.py
 ├── transcript_formats.py
 ├── transcript_sources.py
+├── web_extraction.py
 ├── audio_transcription.py
 ├── pipeline_utils.py
 ├── settings_io.py
@@ -102,7 +103,7 @@ NeuralDeck/
 
 ## About
 
-**NeuralDeck** is a powerful desktop application that transforms your study materials—PDFs, Word documents, PowerPoints, YouTube videos, podcast episodes, and transcript files—into high-quality Anki flashcards. By leveraging the power of local Large Language Models (LLMs), it keeps document and audio processing private: only the transcript text you explicitly import over a URL is fetched from the web.
+**NeuralDeck** is a powerful desktop application that transforms your study materials—PDFs, Word documents, PowerPoints, YouTube videos, podcast episodes, website articles, and transcript files—into high-quality Anki flashcards. By leveraging the power of local Large Language Models (LLMs), it keeps document and audio processing private: only the transcript text you explicitly import over a URL is fetched from the web.
 
 It's designed for students, researchers, and lifelong learners who want to automate the tedious process of card creation without sacrificing control or privacy.
 
@@ -114,7 +115,7 @@ It's designed for students, researchers, and lifelong learners who want to autom
 - **🔒 Private by Default**: Document, audio, and card processing happens locally. A URL import downloads only the transcript text you request; your files and audio are never uploaded.
 - **🤖 LLM-Powered**: Utilizes state-of-the-art local LLMs (like Llama 3, Mistral, or Phi-3 via LM Studio) to understand context and generate accurate, relevant questions.
 - **🔧 Fully Controllable**: A comprehensive UI allows you to review, edit, approve, or discard every single card before it's synced to Anki.
-- **🌐 Multi-Format Support**: Natively handles `.pdf`, `.docx`, `.pptx`, `.txt`, `.vtt`, `.srt`, transcript `.json`, and podcast audio/video files.
+- **🌐 Multi-Format Support**: Handles `.pdf`, `.docx`, `.pptx`, `.txt`, `.vtt`, `.srt`, transcript `.json`, podcast audio/video, PDF URLs and website articles.
 - **🎙️ YouTube & Podcasts**: Imports YouTube captions and Podcasting 2.0 RSS transcripts, with optional local Whisper transcription for episodes that have no written transcript.
 - **🔌 Seamless Anki Integration**: A custom Anki add-on provides a direct bridge for one-click synchronization.
 - **⚡ High Performance**: Multi-threaded processing with intelligent concurrency control.
@@ -130,7 +131,7 @@ It's designed for students, researchers, and lifelong learners who want to autom
 |---------|-------------|
 | **Local First Processing** | Connects to any OpenAI-compatible local server, with a default setup for LM Studio. |
 | **Multi-Document Support** | Extracts text from PDF, Word (`.docx`), PowerPoint (`.pptx`), and plain text (`.txt`) files. |
-| **YouTube & Podcast Sources** | Imports titled YouTube captions, Podcasting 2.0 RSS transcripts, Apple Podcasts URLs, and `.vtt`/`.srt`/JSON files; browse transcribed episodes and preview text before generating cards. |
+| **YouTube, Web & Podcast Sources** | Imports YouTube captions, podcast RSS/Apple URLs, website articles, PDF URLs, and `.vtt`/`.srt`/JSON transcripts; browse episodes and preview text. |
 | **Smart Deck Matching** | Automatically categorizes generated cards into your existing Anki decks by analyzing content. |
 | **AI Refinement Mode** | Optional second AI pass for grammar correction, question clarity, and consistency. |
 | **High-Density Generation** | Forces exhaustive detail extraction for complex subjects like medicine or law. |
@@ -281,7 +282,7 @@ python main.py
 ### Step 4: Generate Cards
 
 1. Click **Select Document / Media** to choose a document, transcript (`.vtt`, `.srt`, `.json`), or podcast audio/video file
-2. Or click **Import YouTube / Podcast** and paste a YouTube video URL, a Podcasting 2.0 RSS feed URL, an Apple Podcasts show/episode URL, or a direct transcript URL
+2. Or click **Import URL / Media** and paste a YouTube, Apple Podcasts, RSS feed, website article, PDF, or direct transcript URL
 3. Or click **Browse Podcast** to paste an RSS feed or Apple Podcasts show URL and choose one of its transcribed episodes
 4. Click **Preview Transcript** to inspect the imported text before generating cards
 5. Select your target **Language** (e.g., English, Spanish, French)
@@ -299,6 +300,8 @@ python main.py
 | YouTube video | Paste a watch, shorts, live or `youtu.be` URL | Uses public captions; disabled/private videos cannot be fetched. |
 | Podcast RSS feed | Paste the show's RSS feed URL | The feed must publish Podcasting 2.0 `<podcast:transcript>` links. **Import** takes the newest transcribed episode; **Browse Podcast** lets you pick one. |
 | Apple Podcasts | Paste a show or episode URL | Resolved to the show's RSS feed through the iTunes lookup API. Episode URLs are matched by their page title; if the episode has no transcript, use **Browse Podcast**. |
+| Website article | Paste a normal article URL | Main article text is extracted; navigation, scripts, cookie banners and related links are removed. |
+| PDF URL | Paste a direct `.pdf` link | Extracted with PyPDF2. Scanned PDFs still need OCR; local PDFs also work via **Select Document / Media**. |
 | Direct transcript | Paste a `.vtt`, `.srt`, `.txt`, `.json` or HTML transcript URL | Only the transcript text is downloaded. |
 | Transcript file | Select it with **Select Document / Media** | Best option when a site blocks automated access. |
 | Podcast audio/video | Select the local file | Requires `requirements-transcription.txt`; processing stays local. |
@@ -349,14 +352,7 @@ Customize every aspect of the card generation process from the Settings panel. C
 | **Debug Mode** | Verbose logging | `False` |
 | **Custom Prompt** | Additional AI instructions | `(empty)` |
 
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NEURALDECK_CONFIG` | Custom config file path | `config.json` beside the app |
-| `NEURALDECK_LOG` | Log file location | `session.log` beside the app |
-
-By default, `config.json`, `session_cache.json` and `session.log` live beside the application, so launching NeuralDeck from any working directory keeps one set of settings. In a frozen one-file build they live beside the executable, not in the executable's temporary extraction folder. A relative environment override is resolved against the application directory; an absolute override is used as given, and nested log directories are created automatically. The session cache is stored beside the resolved config file. Config and session writes use a hidden lock sibling, a unique temporary file, `fsync` and an atomic replace, so an interrupted process cannot leave truncated JSON; the `.lock` siblings are kept for cross-process coordination and ignored by Git; on POSIX, new files are created with `0600` and an existing mode is preserved. `config.json` is personal and untracked; start from `config.example.json`. Malformed or wrong-shaped JSON is moved to a `.corrupt_<timestamp>` sibling instead of being overwritten; a file that cannot be read because of an I/O error is left in place and blocks subsequent saves until it is removed or the application is restarted. Temporary files older than one day are cleaned at startup. On Windows NTFS, the replacement preserves the existing file's ACLs and attributes; filesystems without `ReplaceFileW` support fall back to `os.replace` without that metadata guarantee.
+By default, `config.json`, `session_cache.json` and `session.log` live beside the app (or the frozen executable). `NEURALDECK_CONFIG` and `NEURALDECK_LOG` override the paths; relative overrides resolve against the app directory, and nested log directories are created. Config/session writes use a lock sibling, `fsync` and an atomic replace, so an interrupted process cannot leave truncated JSON. Malformed JSON is quarantined as `.corrupt_<timestamp>`; an I/O-unreadable file blocks saves until it is fixed. `config.json` is personal and untracked; start from `config.example.json`. ADR-002 records the platform metadata, locking and recovery details.
 
 ---
 
@@ -370,7 +366,8 @@ NeuralDeck/
 ├── ui.py                  # Main GUI (ttkbootstrap)
 ├── document_processor.py  # Document parsing & card generation
 ├── transcript_formats.py  # VTT/SRT/JSON/HTML transcript parsing
-├── transcript_sources.py  # YouTube, podcast RSS and URL transcript import
+├── transcript_sources.py  # YouTube, podcast, PDF and URL import
+├── web_extraction.py      # Readable website article extraction
 ├── audio_transcription.py # Optional local faster-whisper adapter
 ├── pipeline_utils.py      # Utilities (stats, validation, logging)
 ├── settings_io.py         # Settings paths, atomic JSON persistence, numeric parsing
@@ -410,6 +407,7 @@ def main():
 | Function | Description |
 |----------|-------------|
 | `extract_text_from_pdf()` | PDF text extraction with PyPDF2, handles encrypted/corrupt files |
+| `extract_text_from_pdf_bytes()` | PDF text extraction from a downloaded URL |
 | `_extract_text_from_docx()` | Word document parsing via python-docx |
 | `_extract_text_from_pptx()` | PowerPoint extraction via python-pptx |
 | `_extract_text_from_txt()` | Plain text file reading |
@@ -437,7 +435,16 @@ def main():
 | `fetch_podcast_feed()` | Downloads and lists a feed's transcribed episodes |
 | `fetch_podcast_transcript_for_ref()` | Downloads only the chosen episode's transcript |
 | `fetch_podcast_transcript()` | Downloads the newest transcribed episode from a feed |
-| `fetch_transcript_from_url()` | Dispatches YouTube, podcast feed and direct transcript URLs |
+| `_pdf_transcript()` | Extracts text from a downloaded PDF |
+| `_web_transcript()` | Extracts the readable body of a web article |
+| `fetch_transcript_from_url()` | Dispatches YouTube, podcast, PDF, website and direct transcript URLs |
+
+#### `web_extraction.py` - Website Articles
+
+| Function | Description |
+|----------|-------------|
+| `extract_article()` | Drops navigation/scripts/boilerplate and returns the title plus main paragraphs |
+| `WebArticle` | Frozen `title` and `text` result |
 
 #### `transcript_formats.py` - Transcript Parsing
 
@@ -488,8 +495,8 @@ def main():
 
 ```text
 Document (.pdf/.docx/.pptx/.txt), transcript (.vtt/.srt/.json), podcast audio/video
-YouTube URL, podcast RSS feed (newest or chosen episode), Apple Podcasts URL, direct transcript URL
-  -> document_processor / transcript_sources: extract plain text
+YouTube URL, podcast RSS/Apple URL, website article, PDF URL, direct transcript URL
+  -> document_processor / transcript_sources / web_extraction: extract plain text
   -> Preview Transcript: inspect the source before generation
   -> document_processor: chunk, generate cards through the local LLM
   -> pipeline_utils: validate, deduplicate, match decks
@@ -528,6 +535,7 @@ python -m pytest tests --cov=. --cov-report=html
 | Document Processor | `test_document_processor.py`, `test_document_processor_extra.py` | ✓ |
 | Transcript Formats | `test_transcript_formats.py` | ✓ |
 | Transcript Sources | `test_transcript_sources.py` | ✓ |
+| Web Extraction | `test_web_extraction.py` | ✓ |
 | Audio Transcription | `test_audio_transcription.py` | ✓ |
 | Pipeline Utils | `test_pipeline_utils.py` | ✓ |
 | Settings I/O | `test_settings_io.py` | ✓ |
@@ -537,7 +545,7 @@ python -m pytest tests --cov=. --cov-report=html
 | Failure Isolation | `test_failure_isolation.py` | ✓ |
 | Deterministic Mode | `test_deterministic.py` | ✓ |
 
-**Total: 200 tests** (platform-specific tests are skipped when their prerequisite is absent)
+**Total: 214 tests** (platform-specific tests are skipped when their prerequisite is absent)
 
 ---
 
@@ -567,6 +575,16 @@ python -m pytest tests --cov=. --cov-report=html
 1. Use OCR tools (Adobe Acrobat, PDF24, or online services)
 2. Convert to text-selectable PDF before processing
 3. Try a different PDF source
+
+### Website Article Not Extracted
+
+**Symptoms**: "The page did not contain readable article text" or the preview has only navigation.
+
+**Solutions**:
+1. Open the page in a browser and confirm the article is not behind a login or paywall.
+2. Paste the article's canonical URL, not a search, category or video page.
+3. Save the article as a `.txt`/PDF and load it locally.
+4. Script-only pages need the browser-rendered text; copy it into a text file.
 
 ### YouTube Captions Unavailable
 
@@ -700,26 +718,6 @@ Contributions are welcome! Here's how you can help:
 4. Ensure all tests pass
 5. Update documentation
 6. Submit pull request
-
-### Development Setup
-
-```bash
-# Clone and setup
-git clone https://github.com/Aegean-E/NeuralDeck.git
-cd NeuralDeck
-
-# Create virtual environment
-python -m venv dev
-dev\Scripts\activate  # Windows
-source dev/bin/activate  # Linux/macOS
-
-# Install all dependencies
-pip install -r requirements.txt
-pip install pytest pytest-cov
-
-# Run tests
-python -m pytest tests/ -v
-```
 
 ---
 

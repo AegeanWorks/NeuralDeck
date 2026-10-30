@@ -361,7 +361,7 @@ class AnkiGeneratorUI(ttk.Window):
         # Import a YouTube or podcast transcript URL
         import_row = ttk.Frame(left_panel)
         import_row.pack(fill=X, pady=(0, 5))
-        self.import_btn = ttk.Button(import_row, text="Import YouTube / Podcast", command=self.import_media_url, bootstyle="info-outline")
+        self.import_btn = ttk.Button(import_row, text="Import URL / Media", command=self.import_media_url, bootstyle="info-outline")
         self.import_btn.pack(side=LEFT, fill=X, expand=True, padx=(0, 3))
         self.browse_btn = ttk.Button(import_row, text="Browse Podcast", command=self.browse_podcast, bootstyle="info-outline")
         self.browse_btn.pack(side=LEFT, fill=X, expand=True, padx=(3, 0))
@@ -721,11 +721,11 @@ class AnkiGeneratorUI(ttk.Window):
             ToolTip(self.file_label, text=filename)
 
     def import_media_url(self):
-        """Fetch a transcript from YouTube or a Podcasting 2.0 RSS feed."""
+        """Fetch a transcript, article or PDF from a URL."""
         url = simpledialog.askstring(
-            "Import YouTube / Podcast",
-            "Paste a YouTube video URL, a podcast RSS feed or Apple Podcasts URL,\n"
-            "or a direct .vtt/.srt/.txt/.json transcript URL:",
+            "Import URL / Media",
+            "Paste a YouTube, Apple Podcasts or podcast RSS URL,\n"
+            "a website article or PDF URL, or a .vtt/.srt/.txt/.json transcript URL:",
             parent=self,
         )
         if not url or not url.strip():

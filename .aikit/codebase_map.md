@@ -6,11 +6,11 @@
 ---
 
 ## 📊 Codebase Metrics
-- **Total Python Modules**: `30`
-- **Total Classes**: `64`
-- **Total Top-Level Functions**: `94`
-- **Total Class Methods**: `305`
-- **Total Source Lines**: `6900`
+- **Total Python Modules**: `32`
+- **Total Classes**: `67`
+- **Total Top-Level Functions**: `108`
+- **Total Class Methods**: `319`
+- **Total Source Lines**: `7304`
 
 ---
 
@@ -76,10 +76,12 @@
 ---
 
 ### [`document_processor.py`](document_processor.py)
-**Size**: `991` lines (`43570` bytes)
+**Size**: `1003` lines (`43882` bytes)
 
 **Functions:**
-- `def extract_text_from_pdf(file_path, log_callback)` - *Extracts text from a PDF file.*
+- `def _extract_text_from_pdf_reader(reader, log_callback)` - *Extract text from an already opened PyPDF2 reader.*
+- `def extract_text_from_pdf(file_path, log_callback)` - *Extract text from a PDF file.*
+- `def extract_text_from_pdf_bytes(data, log_callback)` - *Extract text from PDF bytes downloaded from a URL.*
 - `def _extract_text_from_docx(file_path)` - *Extracts text from a .docx file.*
 - `def _extract_text_from_pptx(file_path)` - *Extracts text from a .pptx file.*
 - `def _extract_text_from_txt(file_path)` - *Extracts text from a .txt file.*
@@ -320,7 +322,7 @@
 ---
 
 ### [`tests/test_document_processor_extra.py`](tests/test_document_processor_extra.py)
-**Size**: `213` lines (`8477` bytes)
+**Size**: `246` lines (`9807` bytes)
 
 **Classes:**
 - `class TestExtractTextFromDocument`
@@ -348,6 +350,10 @@
 - `class TestExtractTextFromPdfEdgeCases`
   - Method `.test_pdf_encrypted(mock_pypdf2, mock_open)`
   - Method `.test_pdf_file_not_found(mock_pypdf2, mock_open)`
+- `class TestPdfBytesExtraction`
+  - Method `.test_extracts_text_from_downloaded_pdf_bytes(mock_pypdf2)`
+  - Method `.test_reports_an_empty_downloaded_pdf(mock_pypdf2)`
+  - Method `.test_reports_a_corrupt_downloaded_pdf(mock_pypdf2)`
 
 ---
 
@@ -494,7 +500,7 @@
 ---
 
 ### [`tests/test_transcript_sources.py`](tests/test_transcript_sources.py)
-**Size**: `499` lines (`22504` bytes)
+**Size**: `553` lines (`24996` bytes)
 
 **Classes:**
 - `class _FakeTranscript`
@@ -544,6 +550,10 @@
   - Method `.test_direct_vtt_url_is_parsed()`
   - Method `.test_rss_url_is_detected_from_content_type()`
   - Method `.test_youtube_url_is_dispatched_without_downloading_a_page()`
+  - Method `.test_pdf_url_is_extracted_with_pypdf2()`
+  - Method `.test_pdf_is_detected_from_magic_bytes()`
+  - Method `.test_website_url_extracts_the_article_not_the_navigation()`
+  - Method `.test_website_without_readable_text_is_reported()`
   - Method `.test_audio_url_is_rejected_with_a_local_path_suggestion()`
   - Method `.test_empty_url_is_rejected()`
   - Method `.test_http_error_is_wrapped()`
@@ -570,6 +580,21 @@
 **Classes:**
 - `class TestThemeAllowlist`
   - Method `.test_allowlist_matches_the_installed_ttkbootstrap_themes()`
+
+---
+
+### [`tests/test_web_extraction.py`](tests/test_web_extraction.py)
+**Size**: `87` lines (`4093` bytes)
+
+**Classes:**
+- `class TestArticleExtraction`
+  - Method `.test_extracts_the_article_and_drops_boilerplate()`
+  - Method `.test_uses_main_when_there_is_no_article()`
+  - Method `.test_falls_back_to_body_paragraphs()`
+  - Method `.test_title_falls_back_to_the_url_slug()`
+  - Method `.test_wiki_style_vector_wrappers_are_removed()`
+  - Method `.test_rejects_empty_html()`
+  - Method `.test_reports_missing_lxml()`
 
 ---
 
@@ -604,7 +629,7 @@
 ### [`transcript_sources.py`](transcript_sources.py)
 > *Fetch card source transcripts from YouTube, podcast feeds and URLs.*
 
-**Size**: `708` lines (`27127` bytes)
+**Size**: `787` lines (`29900` bytes)
 
 **Classes:**
 - `class TranscriptError` - *A user-facing transcript failure that explains why and how to fix it.*
@@ -647,12 +672,17 @@
 - `def fetch_podcast_transcript_for_ref(ref, log_callback)` - *Download the transcript already selected from a podcast feed.*
 - `def fetch_podcast_transcript(feed_url, episode_url, language, log_callback)` - *Download a transcript linked from a Podcasting 2.0 RSS feed.*
 - `def _looks_like_feed(url, content_type, text)`
+- `def _looks_like_pdf(url, content_type, data)`
+- `def _looks_like_html(url, content_type, text)`
+- `def _url_filename(url)`
+- `def _pdf_transcript(data, url, log_callback)`
+- `def _web_transcript(raw, url, log_callback)`
 - `def fetch_transcript_from_url(url, language, log_callback)` - *Fetch a transcript from a YouTube link, podcast feed or transcript URL.*
 
 ---
 
 ### [`ui.py`](ui.py)
-**Size**: `1170` lines (`53054` bytes)
+**Size**: `1170` lines (`53033` bytes)
 
 **Classes:**
 - `class TextWidgetHandler` - *Custom logging handler that writes to a Tkinter ScrolledText widget thread-safely.*
@@ -680,7 +710,7 @@
   - Method `.update_deck_list_ui()`
   - Method `.save_deck_selection()`
   - Method `.select_file()`
-  - Method `.import_media_url()` - *Fetch a transcript from YouTube or a Podcasting 2.0 RSS feed.*
+  - Method `.import_media_url()` - *Fetch a transcript, article or PDF from a URL.*
   - Method `._import_media_url_worker(url, language)`
   - Method `.browse_podcast()` - *List a feed's transcribed episodes and fetch the chosen one.*
   - Method `._browse_podcast_worker(url, language)`
@@ -710,5 +740,24 @@
 **Functions:**
 - `def choose_podcast_episode(parent, feed)` - *Show the feed's transcribed episodes and return the chosen reference.*
 - `def show_text_preview(parent, title, text)` - *Display a read-only transcript preview without modifying the source.*
+
+---
+
+### [`web_extraction.py`](web_extraction.py)
+> *Readable article extraction from HTML pages.*
+
+**Size**: `139` lines (`4832` bytes)
+
+**Classes:**
+- `class WebArticle`
+
+**Functions:**
+- `def _normalize(value)`
+- `def _drop_boilerplate(document)`
+- `def _page_title(document)`
+- `def _candidate_root(document)`
+- `def _paragraphs(root)`
+- `def _fallback_title(url)`
+- `def extract_article(html_text, url)` - *Return the readable title and body text of an HTML page.*
 
 ---

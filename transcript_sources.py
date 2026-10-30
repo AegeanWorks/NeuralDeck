@@ -17,6 +17,7 @@ from defusedxml import ElementTree as ET
 from defusedxml.common import DefusedXmlException
 
 from transcript_formats import parse_transcript
+from web_extraction import extract_article
 
 MAX_SOURCE_BYTES = 10 * 1024 * 1024
 FETCH_TIMEOUT_SECONDS = 20
@@ -640,6 +641,78 @@ def _looks_like_feed(url, content_type, text):
     return text.lstrip("\ufeff \t\r\n").startswith(("<?xml", "<rss", "<feed"))
 
 
+def _looks_like_pdf(url, content_type, data):
+    if content_type == "application/pdf":
+        return True
+    if urllib.parse.urlparse(url).path.lower().endswith(".pdf"):
+        return True
+    return data[:5] == b"%PDF-"
+
+
+def _looks_like_html(url, content_type, text):
+    if content_type in ("text/html", "application/xhtml+xml"):
+        return True
+    if urllib.parse.urlparse(url).path.lower().endswith((".html", ".htm")):
+        return True
+    return text.lstrip("\ufeff \t\r\n").lower().startswith(("<!doctype html", "<html", "<article", "<p"))
+
+
+def _url_filename(url):
+    return urllib.parse.unquote(urllib.parse.urlparse(url).path.rsplit("/", 1)[-1])
+
+
+def _pdf_transcript(data, url, log_callback=None):
+    from document_processor import extract_text_from_pdf_bytes
+
+    try:
+        text = extract_text_from_pdf_bytes(data, log_callback=log_callback)
+    except Exception as exc:
+        raise TranscriptError(
+            f"The PDF could not be read: {exc}\n"
+            "Why: the file is scanned, encrypted or not a valid PDF.\n"
+            "Fix: run OCR first or download the PDF and load it locally."
+        ) from exc
+    if not text.strip():
+        raise TranscriptError(
+            "The PDF produced no readable text.\n"
+            "Why: it is likely a scanned image without an OCR layer.\n"
+            "Fix: run OCR first or load a text transcript."
+        )
+    if log_callback:
+        log_callback(f"PDF transcript ready ({len(text)} characters).")
+    return TranscriptResult(
+        text=text,
+        title=_url_filename(url) or "PDF document",
+        source_url=url,
+        kind="pdf",
+    )
+
+
+def _web_transcript(raw, url, log_callback=None):
+    try:
+        article = extract_article(raw, url=url)
+        text = article.text
+        title = article.title
+    except (ImportError, ValueError) as exc:
+        try:
+            text = parse_transcript(raw, hint="html")
+            title = _url_filename(url)
+        except ValueError:
+            raise TranscriptError(
+                f"The page did not contain readable article text: {exc}\n"
+                "Why: the page may be a paywall, a login screen or a script-only app.\n"
+                "Fix: open it in a browser and save the article text, or use another URL."
+            ) from exc
+    if log_callback:
+        log_callback(f"Website article ready ({len(text)} characters).")
+    return TranscriptResult(
+        text=text,
+        title=title or _url_filename(url) or urllib.parse.urlparse(url).netloc,
+        source_url=url,
+        kind="web",
+    )
+
+
 def fetch_transcript_from_url(url, language="English", log_callback=None):
     """Fetch a transcript from a YouTube link, podcast feed or transcript URL."""
     url = (url or "").strip()
@@ -677,6 +750,10 @@ def fetch_transcript_from_url(url, language="English", log_callback=None):
         return fetch_podcast_transcript_for_ref(ref, log_callback=log_callback)
 
     data, content_type, charset = _fetch_url_bytes(url)
+
+    if _looks_like_pdf(url, content_type, data):
+        return _pdf_transcript(data, url, log_callback=log_callback)
+
     raw = _decode(data, charset)
 
     if _looks_like_feed(url, content_type, raw):
@@ -691,6 +768,9 @@ def fetch_transcript_from_url(url, language="English", log_callback=None):
             "or use the podcast RSS feed URL."
         )
 
+    if _looks_like_html(url, content_type, raw):
+        return _web_transcript(raw, url, log_callback=log_callback)
+
     hint = _hint_from_type(content_type) or _hint_from_url(url)
     try:
         text = parse_transcript(raw, hint=hint)
@@ -701,8 +781,7 @@ def fetch_transcript_from_url(url, language="English", log_callback=None):
             "Fix: download the .vtt/.srt/.txt transcript and load it locally."
         ) from exc
 
-    filename = urllib.parse.unquote(urllib.parse.urlparse(url).path.rsplit("/", 1)[-1])
-    title = filename or urllib.parse.urlparse(url).netloc
+    title = _url_filename(url) or urllib.parse.urlparse(url).netloc
     if log_callback:
         log_callback(f"Transcript ready ({len(text)} characters).")
     return TranscriptResult(text=text, title=title, source_url=url, kind="web")

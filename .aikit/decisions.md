@@ -54,6 +54,13 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Decision**: Parse `/id<collection>` and `?i=<episode>` from Apple Podcasts URLs, resolve the show's `feedUrl` through `https://itunes.apple.com/lookup`, and read an episode page's Open Graph title to match the feed item. Reuse the existing feed parser and download only the matched transcript. A show URL opens the normal episode chooser; an episode URL matches by normalized title and fails with a Why/Fix message when the episode has no transcript or no readable title.
 - **Consequences**: Apple show links work without scraping the show page, and episode links work only when Apple exposes its title metadata and the feed publishes a transcript for that episode. The page fetch is bounded to 2 MB and is skipped for show URLs. No new dependency or credential is introduced.
 
+### ADR-007: Extract PDF bytes and readable web articles through the URL importer
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: Local PDFs already worked, but a PDF link or a normal article URL either failed or passed raw HTML with navigation, cookie banners and scripts into the LLM. PyPDF2 and lxml were already declared dependencies.
+- **Decision**: Detect PDFs by content type, `.pdf` path or `%PDF-` magic before decoding, and reuse the existing PyPDF2 page loop through `extract_text_from_pdf_bytes`. Extract HTML pages with a small lxml-based `web_extraction` module: drop scripts/nav/header/footer/aside and class/id boilerplate, prefer `<article>`/`<main>`, keep readable paragraphs, and fall back to the existing transcript parser when article extraction is thin. URL downloads stay bounded at 10 MB and use the existing worker thread.
+- **Consequences**: PDF and article links can be pasted into the same import box; scanned PDFs still need OCR, paywalled or script-only pages can still fail with a Why/Fix message. No new dependency or persisted state is added.
+
 ## Licensing migration (agpl-final)
 
 - New versions use the Aegean License 1.1 (AL-1.1); versions up to and including `agpl-final` remain under GNU AGPL-3.0.

@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from document_processor import (
     extract_text_from_document,
+    extract_text_from_pdf_bytes,
     check_llm_server,
     _extract_text_from_docx,
     _extract_text_from_pptx,
@@ -207,6 +208,38 @@ class TestExtractTextFromPdfEdgeCases(unittest.TestCase):
         with self.assertRaises(FileNotFoundError) as cm:
             extract_text_from_pdf("missing.pdf")
         self.assertIn("not found", str(cm.exception))
+
+
+class TestPdfBytesExtraction(unittest.TestCase):
+    @patch('document_processor.PyPDF2')
+    def test_extracts_text_from_downloaded_pdf_bytes(self, mock_pypdf2):
+        page = MagicMock()
+        page.extract_text.return_value = "Downloaded PDF content"
+        reader = MagicMock()
+        reader.is_encrypted = False
+        reader.pages = [page]
+        mock_pypdf2.PdfReader.return_value = reader
+
+        text = extract_text_from_pdf_bytes(b"%PDF-1.7 fake")
+        self.assertIn("Downloaded PDF content", text)
+
+    @patch('document_processor.PyPDF2')
+    def test_reports_an_empty_downloaded_pdf(self, mock_pypdf2):
+        reader = MagicMock()
+        reader.is_encrypted = False
+        reader.pages = []
+        mock_pypdf2.PdfReader.return_value = reader
+
+        with self.assertRaises(Exception) as raised:
+            extract_text_from_pdf_bytes(b"%PDF-1.7 fake")
+        self.assertIn("0 pages found", str(raised.exception))
+
+    @patch('document_processor.PyPDF2')
+    def test_reports_a_corrupt_downloaded_pdf(self, mock_pypdf2):
+        mock_pypdf2.PdfReader.side_effect = ValueError("bad xref")
+        with self.assertRaises(Exception) as raised:
+            extract_text_from_pdf_bytes(b"not a pdf")
+        self.assertIn("Failed to read PDF bytes", str(raised.exception))
 
 
 if __name__ == '__main__':

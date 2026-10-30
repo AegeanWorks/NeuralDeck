@@ -1,55 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "media-review-fixes-v2",
+    "task_id": "web-pdf-import-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793373773.6072745,
+    "updated_at": 1793374505.5449047,
     "owner": "opencode:neuraldeck-media",
     "started_by": "opencode:neuraldeck-media",
     "continuations": [],
-    "completed_at": 1793373773.9779832
+    "completed_at": 1793374506.130338
   },
   "checkpoints": [
-    {
-      "task_id": "media-import-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'media-import-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793364844.4875796,
-      "timestamp_str": "2026-10-30 15:54:04",
-      "agent": "opencode:neuraldeck-media"
-    },
-    {
-      "task_id": "media-browse-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Add podcast episode browsing and transcript preview: expose the feed's transcribed episodes, let the user pick one, fetch only that transcript, and show an in-app preview before generating cards.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793371099.5421367,
-      "timestamp_str": "2026-10-30 17:38:19",
-      "agent": "opencode:neuraldeck-media",
-      "impact_assessment": {
-        "why": "The feed import currently picks the newest transcribed episode automatically, so users cannot choose a specific episode or inspect the imported text before spending LLM time.",
-        "benefits": "Makes podcast ingestion predictable and reviewable, reuses one feed parse, and downloads only the chosen transcript.",
-        "risks": "contract: PodcastTranscriptRef gains episode_url and new public feed functions; dependency: none; concurrency: feed fetch and transcript fetch stay on worker threads while dialogs run on the UI thread; state: selected episode remains in memory only.",
-        "mitigation": "Keep parsing pure, preserve existing parse/fetch behavior for callers, mock all network calls in tests, and verify the UI with a headless smoke run."
-      }
-    },
-    {
-      "task_id": "media-browse-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[milestone 1/1] Podcast episode browsing and transcript preview delivered: PodcastFeed/PodcastTranscriptRef listing, feed fetch once, selected-transcript fetch, modal episode chooser, read-only preview capped at 50k chars, tests and docs. Tests 186 pass + 1 skip; checklists: passed (test, hygiene, guidelines, secrets). Uncommitted; strict UI contract still needs a human-reviewed UI task.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793371384.9575288,
-      "timestamp_str": "2026-10-30 17:43:04",
-      "agent": "opencode:neuraldeck-media"
-    },
     {
       "task_id": "media-browse-v1",
       "phase": "completed",
@@ -255,6 +217,44 @@
       "timestamp": 1793373793.616153,
       "timestamp_str": "2026-10-30 18:23:13",
       "agent": "opencode"
+    },
+    {
+      "task_id": "web-pdf-import-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Add URL-based PDF extraction and readable website article extraction: download bounded bytes, detect PDF by content type/magic/path, reuse PyPDF2 page extraction, and extract main article text from HTML with lxml while dropping navigation, scripts and boilerplate.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793373941.0863924,
+      "timestamp_str": "2026-10-30 18:25:41",
+      "agent": "opencode:neuraldeck-media",
+      "impact_assessment": {
+        "why": "NeuralDeck already reads local PDFs, but users cannot paste a PDF link or a normal article URL; raw HTML passthrough includes navigation and cookie banners.",
+        "benefits": "Adds two common study sources without new runtime dependencies (PyPDF2 and lxml are already declared), reusing the existing card pipeline and preview.",
+        "risks": "contract: TranscriptResult gains pdf/web kinds; dependency: none; concurrency: URL fetch stays on the existing worker; state: downloaded bytes and extracted text stay in memory only.",
+        "mitigation": "Bound downloads, detect PDF before decoding, keep the extractor pure and fixture-tested, and fall back to the existing transcript parser when article extraction is thin."
+      }
+    },
+    {
+      "task_id": "web-pdf-import-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[milestone 1/1] PDF URL and website article import delivered: PyPDF2 byte extraction, lxml article extraction with boilerplate removal, URL dispatch by content type/magic, UI import text update, tests, README and ADR-007. Tests 213 pass + 1 skip; checklists: passed (test, hygiene, guidelines, secrets). Live smoke: W3C dummy PDF and Wikipedia Memory article extracted cleanly.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793374505.5449047,
+      "timestamp_str": "2026-10-30 18:35:05",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "web-pdf-import-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'web-pdf-import-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793374506.13034,
+      "timestamp_str": "2026-10-30 18:35:06",
+      "agent": "opencode:neuraldeck-media"
     }
   ]
 }

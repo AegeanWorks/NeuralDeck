@@ -456,6 +456,60 @@ class TestDirectTranscriptUrls(unittest.TestCase):
         self.assertIs(result, expected)
         mocked.assert_called_once()
 
+    def test_pdf_url_is_extracted_with_pypdf2(self):
+        with patch.object(
+            transcript_sources,
+            "_fetch_url_bytes",
+            return_value=(b"%PDF-1.7 fake", "application/pdf", "utf-8"),
+        ), patch(
+            "document_processor.extract_text_from_pdf_bytes",
+            return_value="Extracted PDF study text.",
+        ):
+            result = fetch_transcript_from_url("https://example.com/paper.pdf")
+        self.assertEqual(result.kind, "pdf")
+        self.assertEqual(result.title, "paper.pdf")
+        self.assertIn("PDF study text", result.text)
+
+    def test_pdf_is_detected_from_magic_bytes(self):
+        with patch.object(
+            transcript_sources,
+            "_fetch_url_bytes",
+            return_value=(b"%PDF-1.7 fake", "application/octet-stream", "utf-8"),
+        ), patch(
+            "document_processor.extract_text_from_pdf_bytes",
+            return_value="Extracted PDF study text.",
+        ):
+            result = fetch_transcript_from_url("https://example.com/download")
+        self.assertEqual(result.kind, "pdf")
+
+    def test_website_url_extracts_the_article_not_the_navigation(self):
+        page = """<html><head><title>Memory and Sleep</title></head><body>
+          <nav>Home About Contact</nav>
+          <article><p>Sleep stabilizes new memories and improves next-day recall.</p>
+          <p>Deep sleep supports declarative memory consolidation in particular.</p></article>
+          <footer>Copyright Example</footer></body></html>"""
+        with patch.object(
+            transcript_sources,
+            "_fetch_url_bytes",
+            return_value=(page.encode("utf-8"), "text/html", "utf-8"),
+        ):
+            result = fetch_transcript_from_url("https://example.com/article")
+        self.assertEqual(result.kind, "web")
+        self.assertEqual(result.title, "Memory and Sleep")
+        self.assertIn("Sleep stabilizes", result.text)
+        self.assertNotIn("Home About", result.text)
+
+    def test_website_without_readable_text_is_reported(self):
+        page = "<html><body><script>onlyApp()</script></body></html>"
+        with patch.object(
+            transcript_sources,
+            "_fetch_url_bytes",
+            return_value=(page.encode("utf-8"), "text/html", "utf-8"),
+        ):
+            with self.assertRaises(TranscriptError) as raised:
+                fetch_transcript_from_url("https://example.com/empty")
+        self.assertIn("readable article text", str(raised.exception))
+
     def test_audio_url_is_rejected_with_a_local_path_suggestion(self):
         with patch.object(
             transcript_sources,
