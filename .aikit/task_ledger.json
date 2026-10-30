@@ -14,17 +14,6 @@
   "checkpoints": [
     {
       "task_id": "media-import-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[milestone 1/1] Media transcript import delivered: VTT/SRT/JSON/HTML/plain parsing, YouTube captions, Podcasting 2.0 RSS discovery, direct URL import, optional local faster-whisper, UI import flow, README/ADR updates. Tests 179 pass + 2 prerequisite skips; checklists: passed (test, hygiene, guidelines, secrets). Uncommitted: aikit check --strict is blocked by the pre-existing UI contract surface (only requirements.txt) needing a human-reviewed UI task.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793364838.9599917,
-      "timestamp_str": "2026-10-30 15:53:58",
-      "agent": "opencode:neuraldeck-media"
-    },
-    {
-      "task_id": "media-import-v1",
       "phase": "completed",
       "phase_num": 5,
       "description": "Task 'media-import-v1' completed successfully.",
@@ -255,6 +244,17 @@
       "timestamp": 1793373773.9779859,
       "timestamp_str": "2026-10-30 18:22:53",
       "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "reforge:run-2",
+      "phase": "reforge stage 3",
+      "phase_num": 3,
+      "description": "Reforge stage 3: window 4, 1 commit(s), 4 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired",
+      "files_affected": [],
+      "status": "completed",
+      "timestamp": 1793373793.616153,
+      "timestamp_str": "2026-10-30 18:23:13",
+      "agent": "opencode"
     }
   ]
 }
