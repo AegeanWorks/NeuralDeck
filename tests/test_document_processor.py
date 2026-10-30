@@ -120,7 +120,7 @@ class TestDocumentProcessor(unittest.TestCase):
 
     # --- Extraction Tests (Mocked) ---
     @patch('builtins.open')
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_extract_text_empty(self, mock_pypdf2, mock_open):
         mock_reader = MagicMock()
         mock_reader.pages = []
@@ -132,7 +132,7 @@ class TestDocumentProcessor(unittest.TestCase):
         self.assertIn("0 pages found", str(cm.exception))
 
     @patch('builtins.open')
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_extract_text_image_only(self, mock_pypdf2, mock_open):
         mock_reader = MagicMock()
         mock_page = MagicMock()
@@ -146,7 +146,7 @@ class TestDocumentProcessor(unittest.TestCase):
         self.assertIn("No text could be extracted", str(cm.exception))
 
     @patch('builtins.open')
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_extract_text_partial_success(self, mock_pypdf2, mock_open):
         mock_reader = MagicMock()
 
@@ -169,7 +169,7 @@ class TestDocumentProcessor(unittest.TestCase):
         self.assertIn("Content P3", text)
 
     @patch('builtins.open')
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_extract_text_success(self, mock_pypdf2, mock_open):
         mock_reader = MagicMock()
         mock_page = MagicMock()
@@ -182,7 +182,7 @@ class TestDocumentProcessor(unittest.TestCase):
         self.assertIn("Hello World", text)
 
     @patch('builtins.open')
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_extract_text_page_error(self, mock_pypdf2, mock_open):
         mock_reader = MagicMock()
 

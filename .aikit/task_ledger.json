@@ -1,55 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "video-extraction-v1",
+    "task_id": "pypdf-migration-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793376314.1586497,
+    "updated_at": 1793376550.8478668,
     "owner": "opencode:neuraldeck-media",
     "started_by": "opencode:neuraldeck-media",
     "continuations": [],
-    "completed_at": 1793376314.852419
+    "completed_at": 1793376551.4810464
   },
   "checkpoints": [
-    {
-      "task_id": "media-review-fixes-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'media-review-fixes-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793373358.3253074,
-      "timestamp_str": "2026-10-30 18:15:58",
-      "agent": "opencode:neuraldeck-media"
-    },
-    {
-      "task_id": "youtube-metadata-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Add YouTube oEmbed title/channel metadata so imported videos are labeled by title, with a video-id fallback when metadata is unavailable.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793373517.219148,
-      "timestamp_str": "2026-10-30 18:18:37",
-      "agent": "opencode:neuraldeck-media",
-      "impact_assessment": {
-        "why": "The imported YouTube source is currently labeled only by its 11-character id, which is hard to recognize in the review flow.",
-        "benefits": "Users can confirm the correct video before generating cards; metadata failure never blocks caption import.",
-        "risks": "contract: TranscriptResult.title value changes; dependency: none; concurrency: one bounded metadata request inside the existing worker; state: none.",
-        "mitigation": "Bound the oEmbed request, catch TranscriptError and fall back to the id, and test both paths."
-      }
-    },
-    {
-      "task_id": "youtube-metadata-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[milestone 1/1] YouTube oEmbed metadata delivered: title and channel label the imported video, bounded 256 KB lookup, failures fall back to the video id. Tests 198 pass + 1 skip; checklists: passed (test, hygiene, guidelines, secrets). Live smoke: 'Me at the zoo - jawed'.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793373624.2214687,
-      "timestamp_str": "2026-10-30 18:20:24",
-      "agent": "opencode:neuraldeck-media"
-    },
     {
       "task_id": "youtube-metadata-v1",
       "phase": "completed",
@@ -254,6 +216,44 @@
       "status": "completed",
       "timestamp": 1793376314.8524206,
       "timestamp_str": "2026-10-30 19:05:14",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "pypdf-migration-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Replace the deprecated PyPDF2 dependency with pypdf, keeping the same PdfReader/page/extract_text behavior and updating imports, tests, requirements and docs.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793376404.976861,
+      "timestamp_str": "2026-10-30 19:06:44",
+      "agent": "opencode:neuraldeck-media",
+      "impact_assessment": {
+        "why": "PyPDF2 emits an upstream deprecation warning and pypdf is its maintained successor; staying on it adds avoidable supply-chain and compatibility risk.",
+        "benefits": "Removes the deprecated dependency and warning without changing the PDF extraction contract.",
+        "risks": "contract: same extract_text_from_pdf/extract_text_from_pdf_bytes API; dependency: pypdf replaces PyPDF2; concurrency: none; state: none.",
+        "mitigation": "Use the compatible PdfReader API, update every test patch target, pin pypdf, and run the full suite plus a live PDF extraction."
+      }
+    },
+    {
+      "task_id": "pypdf-migration-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[milestone 1/1] PDF reader migrated from deprecated PyPDF2 to pypdf 6.21.4: import, reader calls, error messages, test patch targets, requirements, README and ADR-009 updated. Tests 220 pass + 1 skip with no deprecation warning; live W3C PDF extraction passed.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793376550.8478668,
+      "timestamp_str": "2026-10-30 19:09:10",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "pypdf-migration-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'pypdf-migration-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793376551.4810493,
+      "timestamp_str": "2026-10-30 19:09:11",
       "agent": "opencode:neuraldeck-media"
     }
   ]

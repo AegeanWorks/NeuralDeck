@@ -68,6 +68,13 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Decision**: Detect media extensions in the URL path before the normal fetch, stream the response to a `mkstemp` file in 1 MB chunks, cap it at 300 MB, reject HTML/JSON/XML responses, and call the optional local faster-whisper adapter. Delete the temporary file in a `finally` block whether transcription succeeds or fails. The resulting card source is labeled `video` or `audio`.
 - **Consequences**: Direct media imports need the optional `requirements-transcription.txt` package and a first-run model download; a 300 MB cap bounds disk and time, and the temporary file is removed after one attempt. Player pages and non-extension media URLs still need the local-file path or a written transcript.
 
+### ADR-009: Migrate PDF reading from PyPDF2 to pypdf
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: PyPDF2 is deprecated upstream and emits a deprecation warning on import; pypdf is its maintained successor with the same `PdfReader`/`pages`/`extract_text()` surface used here.
+- **Decision**: Replace the pinned `PyPDF2` dependency with `pypdf==6.21.4`, import it as `pypdf`, and update every test patch target and documentation mention. The `extract_text_from_pdf` and `extract_text_from_pdf_bytes` contracts do not change.
+- **Consequences**: The deprecation warning disappears and the PDF path stays on a maintained library. A caller that imports `document_processor.PyPDF2` directly must switch to `document_processor.pypdf`; no shipped code did.
+
 ## Licensing migration (agpl-final)
 
 - New versions use the Aegean License 1.1 (AL-1.1); versions up to and including `agpl-final` remain under GNU AGPL-3.0.

@@ -77,10 +77,10 @@
 ---
 
 ### [`document_processor.py`](document_processor.py)
-**Size**: `1003` lines (`43882` bytes)
+**Size**: `1003` lines (`43871` bytes)
 
 **Functions:**
-- `def _extract_text_from_pdf_reader(reader, log_callback)` - *Extract text from an already opened PyPDF2 reader.*
+- `def _extract_text_from_pdf_reader(reader, log_callback)` - *Extract text from an already opened pypdf reader.*
 - `def extract_text_from_pdf(file_path, log_callback)` - *Extract text from a PDF file.*
 - `def extract_text_from_pdf_bytes(data, log_callback)` - *Extract text from PDF bytes downloaded from a URL.*
 - `def _extract_text_from_docx(file_path)` - *Extracts text from a .docx file.*
@@ -292,7 +292,7 @@
 ---
 
 ### [`tests/test_document_processor.py`](tests/test_document_processor.py)
-**Size**: `308` lines (`12263` bytes)
+**Size**: `308` lines (`12258` bytes)
 
 **Classes:**
 - `class TestDocumentProcessor`
@@ -324,7 +324,7 @@
 ---
 
 ### [`tests/test_document_processor_extra.py`](tests/test_document_processor_extra.py)
-**Size**: `253` lines (`10160` bytes)
+**Size**: `253` lines (`10155` bytes)
 
 **Classes:**
 - `class TestExtractTextFromDocument`
@@ -371,7 +371,7 @@
 ---
 
 ### [`tests/test_pipeline.py`](tests/test_pipeline.py)
-**Size**: `95` lines (`3680` bytes)
+**Size**: `95` lines (`3678` bytes)
 
 **Classes:**
 - `class TestFullPipeline`

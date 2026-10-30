@@ -301,7 +301,7 @@ python main.py
 | Podcast RSS feed | Paste the show's RSS feed URL | The feed must publish Podcasting 2.0 `<podcast:transcript>` links. **Import** takes the newest transcribed episode; **Browse Podcast** lets you pick one. |
 | Apple Podcasts | Paste a show or episode URL | Resolved to the show's RSS feed through the iTunes lookup API. Episode URLs are matched by their page title; if the episode has no transcript, use **Browse Podcast**. |
 | Website article | Paste a normal article URL | Main article text is extracted; navigation, scripts, cookie banners and related links are removed. |
-| PDF URL | Paste a direct `.pdf` link | Extracted with PyPDF2. Scanned PDFs still need OCR; local PDFs also work via **Select Document / Media**. |
+| PDF URL | Paste a direct `.pdf` link | Extracted with pypdf. Scanned PDFs still need OCR; local PDFs also work via **Select Document / Media**. |
 | Direct transcript | Paste a `.vtt`, `.srt`, `.txt`, `.json` or HTML transcript URL | Only the transcript text is downloaded. |
 | Direct audio/video URL | Paste a URL ending in `.mp3`, `.mp4`, `.mkv`, `.webm`, `.mov`, etc. | Downloaded to a temporary local file (max 300 MB), transcribed with Whisper, then deleted. |
 | Transcript file | Select it with **Select Document / Media** | Best option when a site blocks automated access. |
@@ -407,7 +407,7 @@ def main():
 
 | Function | Description |
 |----------|-------------|
-| `extract_text_from_pdf()` | PDF text extraction with PyPDF2, handles encrypted/corrupt files |
+| `extract_text_from_pdf()` | PDF text extraction with pypdf, handles encrypted/corrupt files |
 | `extract_text_from_pdf_bytes()` | PDF text extraction from a downloaded URL |
 | `_extract_text_from_docx()` | Word document parsing via python-docx |
 | `_extract_text_from_pptx()` | PowerPoint extraction via python-pptx |

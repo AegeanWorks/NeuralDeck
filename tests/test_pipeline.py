@@ -12,7 +12,7 @@ from anki_integration import create_anki_deck
 
 class TestFullPipeline(unittest.TestCase):
 
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     @patch('builtins.open')
     @patch('document_processor.check_llm_server')
     @patch('document_processor.call_lm_studio')
@@ -67,7 +67,7 @@ class TestFullPipeline(unittest.TestCase):
 
         self.assertEqual(count, 1)
 
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     @patch('builtins.open')
     @patch('document_processor.check_llm_server')
     @patch('document_processor.call_lm_studio')

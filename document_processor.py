@@ -16,9 +16,9 @@ from pipeline_utils import PipelineStats, FailureLogger, CardValidator, Resource
 from transcript_formats import read_transcript_file
 
 try:
-    import PyPDF2
+    import pypdf
 except ImportError:
-    PyPDF2 = None
+    pypdf = None
 
 try:
     import docx
@@ -32,7 +32,7 @@ except ImportError:
 
 
 def _extract_text_from_pdf_reader(reader, log_callback=None):
-    """Extract text from an already opened PyPDF2 reader."""
+    """Extract text from an already opened pypdf reader."""
     text_parts = []
     empty_pages = []
 
@@ -83,12 +83,12 @@ def _extract_text_from_pdf_reader(reader, log_callback=None):
 
 def extract_text_from_pdf(file_path, log_callback=None):
     """Extract text from a PDF file."""
-    if PyPDF2 is None:
-        raise ImportError("PyPDF2 module not found. Please install it using 'pip install PyPDF2'.")
+    if pypdf is None:
+        raise ImportError("pypdf module not found. Please install it using 'pip install pypdf'.")
 
     try:
         with open(file_path, 'rb') as file:
-            reader = PyPDF2.PdfReader(file)
+            reader = pypdf.PdfReader(file)
             return _extract_text_from_pdf_reader(reader, log_callback)
     except FileNotFoundError:
         raise FileNotFoundError(f"PDF file not found: {file_path}")
@@ -98,11 +98,11 @@ def extract_text_from_pdf(file_path, log_callback=None):
 
 def extract_text_from_pdf_bytes(data, log_callback=None):
     """Extract text from PDF bytes downloaded from a URL."""
-    if PyPDF2 is None:
-        raise ImportError("PyPDF2 module not found. Please install it using 'pip install PyPDF2'.")
+    if pypdf is None:
+        raise ImportError("pypdf module not found. Please install it using 'pip install pypdf'.")
 
     try:
-        reader = PyPDF2.PdfReader(io.BytesIO(data))
+        reader = pypdf.PdfReader(io.BytesIO(data))
         return _extract_text_from_pdf_reader(reader, log_callback)
     except Exception as e:
         raise Exception(f"Failed to read PDF bytes: {e}")

@@ -192,7 +192,7 @@ class TestCheckLlmServer(unittest.TestCase):
 
 class TestExtractTextFromPdfEdgeCases(unittest.TestCase):
     @patch('builtins.open')
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_pdf_encrypted(self, mock_pypdf2, mock_open):
         mock_reader = MagicMock()
         mock_reader.is_encrypted = True
@@ -207,7 +207,7 @@ class TestExtractTextFromPdfEdgeCases(unittest.TestCase):
         self.assertIn("Content after encryption issue", result)
 
     @patch('builtins.open')
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_pdf_file_not_found(self, mock_pypdf2, mock_open):
         mock_open.side_effect = FileNotFoundError("File not found")
 
@@ -218,7 +218,7 @@ class TestExtractTextFromPdfEdgeCases(unittest.TestCase):
 
 
 class TestPdfBytesExtraction(unittest.TestCase):
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_extracts_text_from_downloaded_pdf_bytes(self, mock_pypdf2):
         page = MagicMock()
         page.extract_text.return_value = "Downloaded PDF content"
@@ -230,7 +230,7 @@ class TestPdfBytesExtraction(unittest.TestCase):
         text = extract_text_from_pdf_bytes(b"%PDF-1.7 fake")
         self.assertIn("Downloaded PDF content", text)
 
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_reports_an_empty_downloaded_pdf(self, mock_pypdf2):
         reader = MagicMock()
         reader.is_encrypted = False
@@ -241,7 +241,7 @@ class TestPdfBytesExtraction(unittest.TestCase):
             extract_text_from_pdf_bytes(b"%PDF-1.7 fake")
         self.assertIn("0 pages found", str(raised.exception))
 
-    @patch('document_processor.PyPDF2')
+    @patch('document_processor.pypdf')
     def test_reports_a_corrupt_downloaded_pdf(self, mock_pypdf2):
         mock_pypdf2.PdfReader.side_effect = ValueError("bad xref")
         with self.assertRaises(Exception) as raised:
