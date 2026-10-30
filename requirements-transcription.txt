@@ -1,0 +1,4 @@
+# Optional local audio transcription for podcast/video files.
+# Install after requirements.txt when you want NeuralDeck to transcribe media
+# that has no written transcript. The first run downloads a Whisper model.
+faster-whisper==1.2.1

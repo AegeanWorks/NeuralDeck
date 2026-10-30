@@ -2,13 +2,19 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.widgets.scrolled import ScrolledFrame
 from ttkbootstrap.widgets import ToolTip
-from tkinter import TclError, filedialog, messagebox
+from tkinter import TclError, filedialog, messagebox, simpledialog
 from tkinter.scrolledtext import ScrolledText
 import threading
 import os
 import time
 import logging
+from audio_transcription import is_audio_file
 from document_processor import extract_text_from_document, generate_qa_pairs
+from transcript_sources import (
+    fetch_podcast_feed,
+    fetch_podcast_transcript_for_ref,
+    fetch_transcript_from_url,
+)
 from anki_integration import create_anki_deck, get_deck_names, check_anki_connection
 from pipeline_utils import PipelineStats, ResourceGuard
 from settings_io import (
@@ -123,6 +129,107 @@ class CardReviewRow(ttk.Frame):
         if self.on_remove:
             self.on_remove(self)
 
+def choose_podcast_episode(parent, feed):
+    """Show the feed's transcribed episodes and return the chosen reference."""
+    if not feed.episodes:
+        return None
+    if len(feed.episodes) == 1:
+        return feed.episodes[0]
+
+    dialog = ttk.Toplevel(parent)
+    dialog.title("Select Podcast Episode")
+    dialog.geometry("760x420")
+    dialog.minsize(500, 280)
+    dialog.transient(parent)
+
+    ttk.Label(
+        dialog,
+        text=f"{feed.title} — {len(feed.episodes)} transcribed episode(s)",
+        font=("Helvetica", 10, "bold"),
+        padding=10,
+    ).pack(anchor=W)
+
+    table_frame = ttk.Frame(dialog, padding=(10, 0, 10, 0))
+    table_frame.pack(fill=BOTH, expand=True)
+    tree = ttk.Treeview(
+        table_frame,
+        columns=("language", "format"),
+        show="tree headings",
+        selectmode="browse",
+    )
+    tree.heading("#0", text="Episode")
+    tree.heading("language", text="Language")
+    tree.heading("format", text="Format")
+    tree.column("#0", width=510)
+    tree.column("language", width=90, anchor="center")
+    tree.column("format", width=130, anchor="center")
+    scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
+    tree.configure(yscrollcommand=scrollbar.set)
+    tree.pack(side=LEFT, fill=BOTH, expand=True)
+    scrollbar.pack(side=RIGHT, fill="y")
+
+    for index, ref in enumerate(feed.episodes):
+        tree.insert(
+            "",
+            "end",
+            iid=str(index),
+            text=ref.episode_title,
+            values=(ref.language or "?", ref.transcript_type or "?"),
+        )
+
+    result = {"ref": None}
+
+    def confirm(event=None):
+        selection = tree.selection()
+        if not selection:
+            return
+        result["ref"] = feed.episodes[int(selection[0])]
+        dialog.destroy()
+
+    buttons = ttk.Frame(dialog, padding=10)
+    buttons.pack(fill=X)
+    ttk.Button(buttons, text="Use Selected", command=confirm, bootstyle="success").pack(side=RIGHT, padx=(5, 0))
+    ttk.Button(buttons, text="Cancel", command=dialog.destroy, bootstyle="secondary-outline").pack(side=RIGHT)
+
+    tree.bind("<Double-1>", confirm)
+    tree.bind("<Return>", confirm)
+    dialog.bind("<Escape>", lambda event: dialog.destroy())
+    dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
+    tree.focus_set()
+    if feed.episodes:
+        tree.selection_set("0")
+        tree.focus("0")
+    dialog.grab_set()
+    dialog.wait_window()
+    return result["ref"]
+
+
+def show_text_preview(parent, title, text):
+    """Display a read-only transcript preview without modifying the source."""
+    dialog = ttk.Toplevel(parent)
+    dialog.title(f"Transcript Preview - {title}")
+    dialog.geometry("900x600")
+    dialog.minsize(500, 300)
+    dialog.transient(parent)
+
+    frame = ttk.Frame(dialog, padding=10)
+    frame.pack(fill=BOTH, expand=True)
+    ttk.Label(frame, text=title, font=("Helvetica", 10, "bold")).pack(anchor=W)
+    ttk.Label(frame, text=f"{len(text):,} characters").pack(anchor=W, pady=(0, 5))
+
+    viewer = ScrolledText(frame, wrap="word", font=("Segoe UI", 9))
+    preview = text if len(text) <= 50000 else text[:50000] + "\n\n[... preview truncated to 50,000 characters ...]"
+    viewer.insert("1.0", preview)
+    viewer.config(state="disabled")
+    viewer.pack(fill=BOTH, expand=True)
+
+    ttk.Button(frame, text="Close", command=dialog.destroy, bootstyle="secondary").pack(anchor=E, pady=(8, 0))
+    dialog.bind("<Escape>", lambda event: dialog.destroy())
+    dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
+    dialog.grab_set()
+    dialog.wait_window()
+
+
 class AnkiGeneratorUI(ttk.Window):
     def __init__(self):
         for state_file in (CONFIG_FILE, SESSION_FILE, LOG_FILE):
@@ -141,6 +248,9 @@ class AnkiGeneratorUI(ttk.Window):
         
         # Data
         self.selected_file_path = None
+        self.loaded_source_text = None
+        self.loaded_source_title = None
+        self.processing = False
         self.available_decks = []
         self.deck_vars = {}
         self.deck_checkboxes = []
@@ -245,8 +355,20 @@ class AnkiGeneratorUI(ttk.Window):
         self.file_label.pack(side=LEFT, fill=X, expand=True)
         
         # Select Document Button
-        self.select_btn = ttk.Button(left_panel, text="Select Document", command=self.select_file, bootstyle="primary-outline")
-        self.select_btn.pack(fill=X, pady=(0, 10))
+        self.select_btn = ttk.Button(left_panel, text="Select Document / Media", command=self.select_file, bootstyle="primary-outline")
+        self.select_btn.pack(fill=X, pady=(0, 5))
+
+        # Import a YouTube or podcast transcript URL
+        import_row = ttk.Frame(left_panel)
+        import_row.pack(fill=X, pady=(0, 5))
+        self.import_btn = ttk.Button(import_row, text="Import YouTube / Podcast", command=self.import_media_url, bootstyle="info-outline")
+        self.import_btn.pack(side=LEFT, fill=X, expand=True, padx=(0, 3))
+        self.browse_btn = ttk.Button(import_row, text="Browse Podcast", command=self.browse_podcast, bootstyle="info-outline")
+        self.browse_btn.pack(side=LEFT, fill=X, expand=True, padx=(3, 0))
+
+        # Preview the text that will be sent to the LLM
+        self.preview_btn = ttk.Button(left_panel, text="Preview Transcript", command=self.preview_transcript, bootstyle="secondary-outline", state="disabled")
+        self.preview_btn.pack(fill=X, pady=(0, 10))
 
         # Language Selection
         lang_frame = ttk.Frame(left_panel)
@@ -565,7 +687,10 @@ class AnkiGeneratorUI(ttk.Window):
 
     def select_file(self):
         filetypes = [
-            ("All Supported Documents", "*.pdf *.docx *.pptx *.txt"),
+            ("All Supported Sources", "*.pdf *.docx *.pptx *.txt *.srt *.vtt *.json *.mp3 *.m4a *.wav *.ogg *.flac *.mp4 *.mkv *.webm"),
+            ("Documents", "*.pdf *.docx *.pptx *.txt"),
+            ("Transcripts", "*.srt *.vtt *.json *.txt"),
+            ("Podcast Audio / Video", "*.mp3 *.m4a *.wav *.ogg *.flac *.mp4 *.mkv *.webm"),
             ("PDF Files", "*.pdf"),
             ("Word Documents", "*.docx"),
             ("PowerPoint Presentations", "*.pptx"),
@@ -574,21 +699,156 @@ class AnkiGeneratorUI(ttk.Window):
         file_path = filedialog.askopenfilename(filetypes=filetypes)
         if file_path:
             self.selected_file_path = file_path
+            self.loaded_source_text = None
+            self.loaded_source_title = None
+            self.preview_btn.config(state="disabled")
             filename = os.path.basename(file_path)
-            
+            extension = os.path.splitext(filename)[1].lower()
+
             # Uzun dosya isimlerini kısalt (UI bozulmasını önlemek için)
             if len(filename) > 35:
                 display_text = filename[:32] + "..."
             else:
                 display_text = filename
-            
+
             self.file_label.config(text=display_text)
-            self.emoji_label.config(text="📄")
+            if extension in (".vtt", ".srt", ".json"):
+                self.emoji_label.config(text="📝")
+            elif is_audio_file(filename):
+                self.emoji_label.config(text="🎧")
+            else:
+                self.emoji_label.config(text="📄")
             ToolTip(self.file_label, text=filename)
 
+    def import_media_url(self):
+        """Fetch a transcript from YouTube or a Podcasting 2.0 RSS feed."""
+        url = simpledialog.askstring(
+            "Import YouTube / Podcast",
+            "Paste a YouTube video URL, a podcast RSS feed URL,\n"
+            "or a direct .vtt/.srt/.txt/.json transcript URL:",
+            parent=self,
+        )
+        if not url or not url.strip():
+            return
+
+        url = url.strip()
+        self._set_import_busy(True)
+        self.logger.info(f"Fetching transcript from {url}...")
+        threading.Thread(
+            target=self._import_media_url_worker,
+            args=(url, self.lang_var.get()),
+            daemon=True,
+        ).start()
+
+    def _import_media_url_worker(self, url, language):
+        try:
+            result = fetch_transcript_from_url(url, language=language, log_callback=self.logger.info)
+        except Exception as exc:
+            self.after(0, lambda error=exc: self._handle_import_error(error))
+            return
+        self.after(0, lambda value=result: self._apply_imported_transcript(value))
+        self.after(0, self._reset_import_controls)
+
+    def browse_podcast(self):
+        """List a feed's transcribed episodes and fetch the chosen one."""
+        url = simpledialog.askstring(
+            "Browse Podcast Episodes",
+            "Paste the podcast RSS feed URL:",
+            parent=self,
+        )
+        if not url or not url.strip():
+            return
+
+        url = url.strip()
+        self._set_import_busy(True)
+        self.logger.info(f"Loading podcast feed {url}...")
+        threading.Thread(
+            target=self._browse_podcast_worker,
+            args=(url, self.lang_var.get()),
+            daemon=True,
+        ).start()
+
+    def _browse_podcast_worker(self, url, language):
+        try:
+            feed = fetch_podcast_feed(url, language=language, log_callback=self.logger.info)
+        except Exception as exc:
+            self.after(0, lambda error=exc: self._handle_import_error(error))
+            return
+        self.after(0, lambda value=feed: self._choose_podcast_episode(value))
+
+    def _choose_podcast_episode(self, feed):
+        try:
+            selected = choose_podcast_episode(self, feed)
+        except Exception as exc:
+            self._handle_import_error(exc)
+            return
+        if selected is None:
+            self.logger.info("Podcast episode selection cancelled.")
+            self._reset_import_controls()
+            return
+
+        self.logger.info(f"Selected podcast episode: {selected.episode_title}")
+        threading.Thread(
+            target=self._fetch_podcast_episode_worker,
+            args=(selected,),
+            daemon=True,
+        ).start()
+
+    def _fetch_podcast_episode_worker(self, selected):
+        try:
+            result = fetch_podcast_transcript_for_ref(selected, log_callback=self.logger.info)
+        except Exception as exc:
+            self.after(0, lambda error=exc: self._handle_import_error(error))
+            return
+        self.after(0, lambda value=result: self._apply_imported_transcript(value))
+        self.after(0, self._reset_import_controls)
+
+    def _handle_import_error(self, exc):
+        self.logger.error(f"Transcript import failed: {exc}")
+        messagebox.showerror("Transcript Import Failed", str(exc))
+        self._reset_import_controls()
+
+    def _set_import_busy(self, busy):
+        state = "disabled" if busy else "normal"
+        self.import_btn.config(state=state)
+        self.browse_btn.config(state=state)
+        if busy:
+            self.generate_btn.config(state="disabled")
+        elif not self.processing:
+            self.generate_btn.config(state="normal")
+
+    def _apply_imported_transcript(self, result):
+        self.loaded_source_text = result.text
+        self.loaded_source_title = result.title
+        self.selected_file_path = None
+        self.source_text = result.text
+
+        display_text = result.title or result.source_url
+        if len(display_text) > 35:
+            display_text = display_text[:32] + "..."
+        self.file_label.config(text=display_text)
+        self.emoji_label.config(text={"youtube": "▶", "podcast": "🎧"}.get(result.kind, "📝"))
+        ToolTip(self.file_label, text=f"{result.title}\n{result.source_url}")
+        self.preview_btn.config(state="normal")
+        self.logger.info(f"Imported {len(result.text)} characters from {result.kind} source: {result.title}.")
+
+    def _reset_import_controls(self):
+        self._set_import_busy(False)
+
+    def preview_transcript(self):
+        """Show the text that will be sent to the LLM."""
+        text = self.loaded_source_text or self.source_text
+        if not text:
+            messagebox.showinfo("Preview Transcript", "No transcript is loaded yet.")
+            return
+        title = self.loaded_source_title
+        if not title and self.selected_file_path:
+            title = os.path.basename(self.selected_file_path)
+        show_text_preview(self, title or "Source Text", text)
+
     def start_processing(self):
-        if not self.selected_file_path:
-            messagebox.showwarning("Warning", "Please select a document file first.")
+        if not self.selected_file_path and not self.loaded_source_text:
+            messagebox.showwarning("Warning", "Please select a document, audio file, or import a transcript first.")
             return
         
         # Ensure we capture the latest prompt from the UI even if "Save Settings" wasn't clicked
@@ -621,21 +881,30 @@ class AnkiGeneratorUI(ttk.Window):
         
         self.generate_btn.config(state="disabled")
         self.stop_btn.config(state="normal")
+        self.import_btn.config(state="disabled")
+        self.browse_btn.config(state="disabled")
+        self.processing = True
         self.stop_requested = False
         self.logger.info("Starting processing...")
-        
-        threading.Thread(target=self.run_process, args=(self.selected_file_path, target_lang, api_url, api_key, model, temperature, max_tokens, prompt_style, selected_decks, context_window, concurrency, card_density, filter_yes_no, exclude_trivia, smart_deck_match, ai_refinement, deterministic_mode), daemon=True).start()
 
-    def run_process(self, file_path, target_lang, api_url, api_key, model, temperature, max_tokens, prompt_style, deck_names, context_window, concurrency, card_density, filter_yes_no, exclude_trivia, smart_deck_match, ai_refinement, deterministic_mode):
+        preloaded_text = self.loaded_source_text
+        threading.Thread(target=self.run_process, args=(self.selected_file_path, target_lang, api_url, api_key, model, temperature, max_tokens, prompt_style, selected_decks, context_window, concurrency, card_density, filter_yes_no, exclude_trivia, smart_deck_match, ai_refinement, deterministic_mode, preloaded_text), daemon=True).start()
+
+    def run_process(self, file_path, target_lang, api_url, api_key, model, temperature, max_tokens, prompt_style, deck_names, context_window, concurrency, card_density, filter_yes_no, exclude_trivia, smart_deck_match, ai_refinement, deterministic_mode, preloaded_text=None):
         pipeline_stats = PipelineStats()
         try:
-            ResourceGuard.check_file_size(file_path)
-            self.logger.info(f"Extracting text from {os.path.basename(file_path)}...")
-
             t_start = time.time()
-            text = extract_text_from_document(file_path, log_callback=self.logger.info)
-            pipeline_stats.record_extraction_time(time.time() - t_start)
-            
+            if preloaded_text:
+                self.logger.info("Using the imported transcript...")
+                text = preloaded_text
+                pipeline_stats.record_extraction_time(0.0)
+            else:
+                if not is_audio_file(file_path):
+                    ResourceGuard.check_file_size(file_path)
+                self.logger.info(f"Extracting text from {os.path.basename(file_path)}...")
+                text = extract_text_from_document(file_path, log_callback=self.logger.info)
+                pipeline_stats.record_extraction_time(time.time() - t_start)
+
             self.logger.info(f"Extracted {len(text)} characters.")
             
             self.source_text = text
@@ -669,8 +938,16 @@ class AnkiGeneratorUI(ttk.Window):
             # Show popup for errors to ensure user sees it
             self.after(0, lambda: messagebox.showerror("Error", f"Processing Failed:\n{str(e)}"))
         finally:
-            self.after(0, lambda: self.generate_btn.config(state="normal"))
-            self.after(0, lambda: self.stop_btn.config(state="disabled"))
+            self.after(0, self._finish_processing)
+
+    def _finish_processing(self):
+        self.processing = False
+        self.generate_btn.config(state="normal")
+        self.stop_btn.config(state="disabled")
+        self.import_btn.config(state="normal")
+        self.browse_btn.config(state="normal")
+        if self.source_text:
+            self.preview_btn.config(state="normal")
 
     def clear_review_area(self):
         for row in self.card_rows:

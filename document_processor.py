@@ -10,7 +10,9 @@ import http.client
 import socket
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from audio_transcription import is_audio_file, transcribe_audio
 from pipeline_utils import PipelineStats, FailureLogger, CardValidator, ResourceGuard
+from transcript_formats import read_transcript_file
 
 try:
     import PyPDF2
@@ -120,9 +122,21 @@ def _extract_text_from_txt(file_path):
     with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
         return f.read()
 
+def _extract_text_from_transcript(file_path, log_callback=None):
+    """Extracts text from WebVTT, SRT or transcript JSON files."""
+    if log_callback:
+        log_callback(f"Extracting text from transcript {os.path.basename(file_path)}...")
+    return read_transcript_file(file_path)
+
+def _extract_text_from_audio(file_path, log_callback=None):
+    """Transcribes a local podcast or video file with optional faster-whisper."""
+    if log_callback:
+        log_callback(f"Transcribing audio {os.path.basename(file_path)} locally...")
+    return transcribe_audio(file_path, log_callback=log_callback)
+
 def extract_text_from_document(file_path, log_callback=None):
     """
-    Extracts text from a supported document file.
+    Extracts text from a supported document, transcript, or audio file.
     """
     _, extension = os.path.splitext(file_path.lower())
 
@@ -137,8 +151,15 @@ def extract_text_from_document(file_path, log_callback=None):
     elif extension == ".txt":
         if log_callback: log_callback("Extracting text from TXT file...")
         return _extract_text_from_txt(file_path)
+    elif extension in (".vtt", ".srt", ".json"):
+        return _extract_text_from_transcript(file_path, log_callback)
+    elif is_audio_file(file_path):
+        return _extract_text_from_audio(file_path, log_callback)
     else:
-        raise ValueError(f"Unsupported file type: {extension}")
+        raise ValueError(
+            f"Unsupported file type: {extension}. Use PDF, DOCX, PPTX, TXT, "
+            "VTT, SRT, JSON, or a podcast audio/video file."
+        )
 
 def check_llm_server(api_url, api_key="lm-studio"):
     """

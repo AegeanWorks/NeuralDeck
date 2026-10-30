@@ -6,11 +6,11 @@
 ---
 
 ## 📊 Codebase Metrics
-- **Total Python Modules**: `23`
-- **Total Classes**: `47`
-- **Total Top-Level Functions**: `41`
-- **Total Class Methods**: `218`
-- **Total Source Lines**: `4780`
+- **Total Python Modules**: `30`
+- **Total Classes**: `62`
+- **Total Top-Level Functions**: `85`
+- **Total Class Methods**: `292`
+- **Total Source Lines**: `6563`
 
 ---
 
@@ -45,6 +45,20 @@
 
 ---
 
+### [`audio_transcription.py`](audio_transcription.py)
+> *Optional local podcast/video transcription through faster-whisper.*
+
+**Size**: `81` lines (`3213` bytes)
+
+**Classes:**
+- `class AudioTranscriptionError` - *A user-facing local transcription failure with a Why/Fix message.*
+
+**Functions:**
+- `def is_audio_file(file_path)` - *Return True when the path has a supported audio/video extension.*
+- `def transcribe_audio(file_path, model_size, log_callback, stop_callback)` - *Transcribe a local audio/video file and return plain text.*
+
+---
+
 ### [`debug_anki.py`](debug_anki.py)
 **Size**: `41` lines (`1724` bytes)
 
@@ -62,14 +76,16 @@
 ---
 
 ### [`document_processor.py`](document_processor.py)
-**Size**: `970` lines (`42500` bytes)
+**Size**: `991` lines (`43570` bytes)
 
 **Functions:**
 - `def extract_text_from_pdf(file_path, log_callback)` - *Extracts text from a PDF file.*
 - `def _extract_text_from_docx(file_path)` - *Extracts text from a .docx file.*
 - `def _extract_text_from_pptx(file_path)` - *Extracts text from a .pptx file.*
 - `def _extract_text_from_txt(file_path)` - *Extracts text from a .txt file.*
-- `def extract_text_from_document(file_path, log_callback)` - *Extracts text from a supported document file.*
+- `def _extract_text_from_transcript(file_path, log_callback)` - *Extracts text from WebVTT, SRT or transcript JSON files.*
+- `def _extract_text_from_audio(file_path, log_callback)` - *Transcribes a local podcast or video file with optional faster-whisper.*
+- `def extract_text_from_document(file_path, log_callback)` - *Extracts text from a supported document, transcript, or audio file.*
 - `def check_llm_server(api_url, api_key)` - *Checks if the LLM server is reachable.*
 - `def call_lm_studio(prompt, system_instruction, api_url, api_key, model, temperature, max_tokens, stop_callback, timeout)` - *Calls the local LM Studio server (OpenAI compatible API).*
 - `def smart_chunk_text(text, max_chars, min_chars)` - *Splits text into chunks respecting paragraph boundaries.*
@@ -242,6 +258,24 @@
 
 ---
 
+### [`tests/test_audio_transcription.py`](tests/test_audio_transcription.py)
+**Size**: `134` lines (`4672` bytes)
+
+**Classes:**
+- `class TestAudioTranscription`
+  - Method `.test_audio_extensions_are_recognized()`
+  - Method `.test_missing_file_raises()`
+  - Method `.test_unsupported_extension_raises()`
+  - Method `.test_missing_faster_whisper_reports_the_optional_requirements_file()`
+  - Method `.test_transcribes_segments_and_honours_stop_callback()`
+  - Method `.test_empty_speech_is_reported()`
+  - Method `.test_stop_callback_stops_before_a_result()`
+
+**Functions:**
+- `def _temp_audio(suffix)`
+
+---
+
 ### [`tests/test_deterministic.py`](tests/test_deterministic.py)
 **Size**: `83` lines (`3855` bytes)
 
@@ -286,7 +320,7 @@
 ---
 
 ### [`tests/test_document_processor_extra.py`](tests/test_document_processor_extra.py)
-**Size**: `187` lines (`7167` bytes)
+**Size**: `213` lines (`8477` bytes)
 
 **Classes:**
 - `class TestExtractTextFromDocument`
@@ -294,6 +328,10 @@
   - Method `.test_extract_pptx(mock_pptx)`
   - Method `.test_extract_txt(mock_txt)`
   - Method `.test_extract_pdf(mock_pdf)`
+  - Method `.test_extract_vtt_transcript(mock_transcript)`
+  - Method `.test_extract_srt_transcript(mock_transcript)`
+  - Method `.test_extract_json_transcript(mock_transcript)`
+  - Method `.test_extract_audio_transcript(mock_audio)`
   - Method `.test_unsupported_format()`
 - `class TestExtractTextFromDocx`
   - Method `.test_docx_success(mock_document)`
@@ -434,6 +472,84 @@
 
 ---
 
+### [`tests/test_transcript_formats.py`](tests/test_transcript_formats.py)
+**Size**: `111` lines (`3803` bytes)
+
+**Classes:**
+- `class TestTranscriptFormats`
+  - Method `.test_parse_vtt_strips_headers_timings_and_tags()`
+  - Method `.test_parse_srt_strips_cue_numbers()`
+  - Method `.test_parse_podcast_json_segments()`
+  - Method `.test_parse_podcast_json_accepts_a_plain_text_field()`
+  - Method `.test_parse_podcast_json_accepts_a_string_transcript_field()`
+  - Method `.test_parse_podcast_json_rejects_empty_segments()`
+  - Method `.test_clean_transcript_removes_rolling_duplicates()`
+  - Method `.test_clean_transcript_removes_timestamp_prefixes()`
+  - Method `.test_plain_text_is_normalized()`
+  - Method `.test_html_transcript_is_rendered_as_text()`
+  - Method `.test_format_is_sniffed_without_a_hint()`
+  - Method `.test_empty_transcript_is_rejected()`
+  - Method `.test_read_transcript_file_uses_its_extension_hint()`
+
+---
+
+### [`tests/test_transcript_sources.py`](tests/test_transcript_sources.py)
+**Size**: `338` lines (`13941` bytes)
+
+**Classes:**
+- `class _FakeTranscript`
+  - Method `.__init__(text)`
+  - Method `.fetch()`
+- `class _FakeTranscriptList`
+  - Method `.__init__(transcript, error)`
+  - Method `.find_transcript(codes)`
+  - Method `.__iter__()`
+- `class TestYouTubeIds`
+  - Method `.test_accepts_common_youtube_urls_and_bare_ids()`
+  - Method `.test_rejects_channels_playlists_and_other_sites()`
+  - Method `.test_language_codes_map_names_and_keep_english_fallback()`
+- `class TestYouTubeTranscript`
+  - Method `.test_fetches_the_requested_track()`
+  - Method `.test_falls_back_to_any_available_track()`
+  - Method `.test_disabled_captions_get_an_actionable_error()`
+  - Method `.test_missing_library_reports_the_install_command()`
+  - Method `.test_channel_url_is_rejected_before_network_access()`
+- `class TestPodcastFeed`
+  - Method `.test_finds_the_newest_episode_with_a_transcript()`
+  - Method `.test_prefers_the_requested_language()`
+  - Method `.test_matches_an_explicit_episode_url()`
+  - Method `.test_unknown_episode_url_is_reported()`
+  - Method `.test_feed_data_lists_every_transcribed_episode_in_order()`
+  - Method `.test_episodes_without_transcripts_are_omitted_from_the_browser()`
+  - Method `.test_fetch_podcast_feed_downloads_the_feed_once()`
+  - Method `.test_fetch_podcast_transcript_for_ref_downloads_only_the_transcript()`
+  - Method `.test_feed_without_transcript_tags_is_reported()`
+  - Method `.test_invalid_xml_is_reported()`
+  - Method `.test_fetch_podcast_transcript_downloads_feed_and_cue_file()`
+- `class TestDirectTranscriptUrls`
+  - Method `.test_direct_vtt_url_is_parsed()`
+  - Method `.test_rss_url_is_detected_from_content_type()`
+  - Method `.test_youtube_url_is_dispatched_without_downloading_a_page()`
+  - Method `.test_audio_url_is_rejected_with_a_local_path_suggestion()`
+  - Method `.test_empty_url_is_rejected()`
+  - Method `.test_http_error_is_wrapped()`
+  - Method `.test_oversized_download_is_refused()`
+
+**Functions:**
+- `def _fake_youtube_api(transcript_list)`
+
+---
+
+### [`tests/test_ui_media.py`](tests/test_ui_media.py)
+**Size**: `35` lines (`1283` bytes)
+
+**Classes:**
+- `class TestPodcastChooserShortcuts`
+  - Method `.test_single_episode_is_returned_without_opening_a_dialog()`
+  - Method `.test_empty_feed_returns_none()`
+
+---
+
 ### [`tests/test_ui_themes.py`](tests/test_ui_themes.py)
 **Size**: `21` lines (`553` bytes)
 
@@ -443,8 +559,76 @@
 
 ---
 
+### [`transcript_formats.py`](transcript_formats.py)
+> *Parse transcript formats into the plain text NeuralDeck sends to the LLM.*
+
+**Size**: `228` lines (`7625` bytes)
+
+**Classes:**
+- `class _HTMLTextExtractor` - *Collect readable text while ignoring scripts, styles and markup.*
+  - Method `.__init__()`
+  - Method `.handle_starttag(tag, attrs)`
+  - Method `.handle_endtag(tag)`
+  - Method `.handle_data(data)`
+  - Method `.get_text()`
+
+**Functions:**
+- `def _html_to_text(text)`
+- `def _is_noise_line(line)`
+- `def _parse_timed_cues(text)` - *Shared VTT/SRT cue parser: keep the text after each timing line.*
+- `def parse_vtt(text)` - *Extract cue text from a WebVTT transcript.*
+- `def parse_srt(text)` - *Extract cue text from a SubRip transcript.*
+- `def _iter_segments(data)`
+- `def parse_podcast_json(text)` - *Extract text from Podcasting 2.0 JSON and similar segment lists.*
+- `def _merge_overlap(previous, line)` - *Merge YouTube-style rolling captions that share a word boundary.*
+- `def clean_transcript_text(text)` - *Normalize captions into one readable block and drop rolling duplicates.*
+- `def parse_transcript(text, hint)` - *Convert transcript text to plain text, sniffing the format when needed.*
+- `def read_transcript_file(file_path)` - *Read a transcript file and return normalized plain text.*
+
+---
+
+### [`transcript_sources.py`](transcript_sources.py)
+> *Fetch card source transcripts from YouTube, podcast feeds and URLs.*
+
+**Size**: `532` lines (`20472` bytes)
+
+**Classes:**
+- `class TranscriptError` - *A user-facing transcript failure that explains why and how to fix it.*
+- `class TranscriptResult`
+- `class PodcastTranscriptRef`
+- `class PodcastFeed`
+
+**Functions:**
+- `def language_codes(language)` - *Map a UI language name to the ISO codes YouTube expects.*
+- `def extract_youtube_video_id(value)` - *Return the 11-character video id from a YouTube URL or bare id.*
+- `def _is_youtube_url(value)`
+- `def _fetch_url_bytes(url, max_bytes, timeout)`
+- `def _decode(data, charset)`
+- `def _load_youtube_transcript_api()`
+- `def _youtube_error_message(video_id, exc)`
+- `def fetch_youtube_transcript(url_or_id, language, log_callback)` - *Download the best available caption track for a YouTube video.*
+- `def _local_name(tag)`
+- `def _child(element, name)`
+- `def _text_of(element, name)`
+- `def _normalized_url(value)`
+- `def _choose_transcript(transcripts, language)`
+- `def _transcript_ref(item, feed_title, language)`
+- `def _parse_feed_items(xml_text, language)`
+- `def parse_podcast_feed_data(xml_text, feed_url, language)` - *Parse a Podcasting 2.0 feed into its transcribed episodes.*
+- `def parse_podcast_feed(xml_text, feed_url, episode_url, language)` - *Find a Podcasting 2.0 transcript link in an RSS feed.*
+- `def _hint_from_type(content_type)`
+- `def _hint_from_url(url)`
+- `def _transcript_from_ref(ref, log_callback)`
+- `def fetch_podcast_feed(feed_url, language, log_callback)` - *Download and parse a feed into its transcribed episodes.*
+- `def fetch_podcast_transcript_for_ref(ref, log_callback)` - *Download the transcript already selected from a podcast feed.*
+- `def fetch_podcast_transcript(feed_url, episode_url, language, log_callback)` - *Download a transcript linked from a Podcasting 2.0 RSS feed.*
+- `def _looks_like_feed(url, content_type, text)`
+- `def fetch_transcript_from_url(url, language, log_callback)` - *Fetch a transcript from a YouTube link, podcast feed or transcript URL.*
+
+---
+
 ### [`ui.py`](ui.py)
-**Size**: `893` lines (`41837` bytes)
+**Size**: `1170` lines (`53015` bytes)
 
 **Classes:**
 - `class TextWidgetHandler` - *Custom logging handler that writes to a Tkinter ScrolledText widget thread-safely.*
@@ -472,8 +656,20 @@
   - Method `.update_deck_list_ui()`
   - Method `.save_deck_selection()`
   - Method `.select_file()`
+  - Method `.import_media_url()` - *Fetch a transcript from YouTube or a Podcasting 2.0 RSS feed.*
+  - Method `._import_media_url_worker(url, language)`
+  - Method `.browse_podcast()` - *List a feed's transcribed episodes and fetch the chosen one.*
+  - Method `._browse_podcast_worker(url, language)`
+  - Method `._choose_podcast_episode(feed)`
+  - Method `._fetch_podcast_episode_worker(selected)`
+  - Method `._handle_import_error(exc)`
+  - Method `._set_import_busy(busy)`
+  - Method `._apply_imported_transcript(result)`
+  - Method `._reset_import_controls()`
+  - Method `.preview_transcript()` - *Show the text that will be sent to the LLM.*
   - Method `.start_processing()`
-  - Method `.run_process(file_path, target_lang, api_url, api_key, model, temperature, max_tokens, prompt_style, deck_names, context_window, concurrency, card_density, filter_yes_no, exclude_trivia, smart_deck_match, ai_refinement, deterministic_mode)`
+  - Method `.run_process(file_path, target_lang, api_url, api_key, model, temperature, max_tokens, prompt_style, deck_names, context_window, concurrency, card_density, filter_yes_no, exclude_trivia, smart_deck_match, ai_refinement, deterministic_mode, preloaded_text)`
+  - Method `._finish_processing()`
   - Method `.clear_review_area()`
   - Method `.add_manual_card()` - *Adds a blank card row for manual authoring.*
   - Method `.append_cards_to_review(new_cards)`
@@ -486,5 +682,9 @@
   - Method `.toggle_all_approvals(state)`
   - Method `.bulk_assign_deck()` - *Assigns the selected deck to all checked cards.*
   - Method `.sync_to_anki()`
+
+**Functions:**
+- `def choose_podcast_episode(parent, feed)` - *Show the feed's transcribed episodes and return the chosen reference.*
+- `def show_text_preview(parent, title, text)` - *Display a read-only transcript preview without modifying the source.*
 
 ---

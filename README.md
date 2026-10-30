@@ -82,12 +82,16 @@ NeuralDeck/
 ├── main.py
 ├── ui.py
 ├── document_processor.py
+├── transcript_formats.py
+├── transcript_sources.py
+├── audio_transcription.py
 ├── pipeline_utils.py
 ├── settings_io.py
 ├── anki_integration.py
 ├── debug_anki.py
 ├── debug_llm.py
 ├── requirements.txt
+├── requirements-transcription.txt
 ├── config.example.json
 ├── LICENSE
 ├── LICENSES/                 <- REUSE license texts
@@ -98,7 +102,7 @@ NeuralDeck/
 
 ## About
 
-**NeuralDeck** is a powerful desktop application that transforms your study materials—PDFs, Word documents, and PowerPoints—into high-quality Anki flashcards. By leveraging the power of local Large Language Models (LLMs), it offers a completely offline and private workflow, ensuring your data never leaves your computer.
+**NeuralDeck** is a powerful desktop application that transforms your study materials—PDFs, Word documents, PowerPoints, YouTube videos, podcast episodes, and transcript files—into high-quality Anki flashcards. By leveraging the power of local Large Language Models (LLMs), it keeps document and audio processing private: only the transcript text you explicitly import over a URL is fetched from the web.
 
 It's designed for students, researchers, and lifelong learners who want to automate the tedious process of card creation without sacrificing control or privacy.
 
@@ -107,10 +111,11 @@ It's designed for students, researchers, and lifelong learners who want to autom
 ## Why NeuralDeck?
 
 - **🧠 Intelligent & Automated**: Go from a 300-page textbook to a ready-to-study Anki deck in minutes, not hours.
-- **🔒 100% Private**: All processing happens locally. Your documents and generated cards are never sent to the cloud.
+- **🔒 Private by Default**: Document, audio, and card processing happens locally. A URL import downloads only the transcript text you request; your files and audio are never uploaded.
 - **🤖 LLM-Powered**: Utilizes state-of-the-art local LLMs (like Llama 3, Mistral, or Phi-3 via LM Studio) to understand context and generate accurate, relevant questions.
 - **🔧 Fully Controllable**: A comprehensive UI allows you to review, edit, approve, or discard every single card before it's synced to Anki.
-- **🌐 Multi-Format Support**: Natively handles `.pdf`, `.docx`, `.pptx`, and `.txt` files.
+- **🌐 Multi-Format Support**: Natively handles `.pdf`, `.docx`, `.pptx`, `.txt`, `.vtt`, `.srt`, transcript `.json`, and podcast audio/video files.
+- **🎙️ YouTube & Podcasts**: Imports YouTube captions and Podcasting 2.0 RSS transcripts, with optional local Whisper transcription for episodes that have no written transcript.
 - **🔌 Seamless Anki Integration**: A custom Anki add-on provides a direct bridge for one-click synchronization.
 - **⚡ High Performance**: Multi-threaded processing with intelligent concurrency control.
 - **🛡️ Resilient**: Built with failure isolation to handle corrupted pages and unstable LLM responses gracefully.
@@ -125,6 +130,7 @@ It's designed for students, researchers, and lifelong learners who want to autom
 |---------|-------------|
 | **Local First Processing** | Connects to any OpenAI-compatible local server, with a default setup for LM Studio. |
 | **Multi-Document Support** | Extracts text from PDF, Word (`.docx`), PowerPoint (`.pptx`), and plain text (`.txt`) files. |
+| **YouTube & Podcast Sources** | Imports YouTube captions, Podcasting 2.0 RSS transcripts, and `.vtt`/`.srt`/JSON transcript files; browse a feed's transcribed episodes and preview the text before generating cards. |
 | **Smart Deck Matching** | Automatically categorizes generated cards into your existing Anki decks by analyzing content. |
 | **AI Refinement Mode** | Optional second AI pass for grammar correction, question clarity, and consistency. |
 | **High-Density Generation** | Forces exhaustive detail extraction for complex subjects like medicine or law. |
@@ -141,6 +147,8 @@ It's designed for students, researchers, and lifelong learners who want to autom
 - **Card Density Control**: Low (concepts), Medium (balanced), High (exhaustive).
 - **Parallel Processing**: Configurable concurrency for faster generation.
 - **Smart Filtering**: Automatic removal of Yes/No questions and duplicate content.
+- **Local Audio Transcription**: Optional faster-whisper pass for podcast and video files, with no audio upload.
+- **Episode Browser & Preview**: Pick a specific transcribed podcast episode and inspect the imported text before spending LLM time.
 
 ---
 
@@ -186,6 +194,7 @@ python main.py
 | **Python** | 3.10+ | Required for running the application |
 | **Anki** | Desktop | Must be running for sync to work |
 | **Local LLM Server** | - | LM Studio recommended |
+| **faster-whisper** | Optional | Only for podcast audio/video without a written transcript |
 
 ### Recommended LLM Models
 
@@ -237,6 +246,16 @@ To allow NeuralDeck to communicate with Anki, install the included bridge add-on
 
 > **Verification**: Look for `NeuralDeck Bridge running on port 5005...` in the Anki terminal output.
 
+### 3. Optional: Local Audio Transcription
+
+YouTube captions, `.vtt`/`.srt` files and Podcasting 2.0 transcripts need no extra packages. To transcribe a podcast or video file that has no written transcript, install the optional local Whisper adapter:
+
+```bash
+pip install -r requirements-transcription.txt
+```
+
+The first transcription downloads a small Whisper model and caches it locally; after that, the audio is decoded and transcribed entirely on your machine. Audio is never uploaded.
+
 ---
 
 ## Usage Guide
@@ -261,14 +280,29 @@ python main.py
 
 ### Step 4: Generate Cards
 
-1. Click **Select Document** to choose your source file (`.pdf`, `.docx`, `.pptx`, `.txt`)
-2. Select your target **Language** (e.g., English, Spanish, French)
-3. Choose which Anki decks the AI can assign cards to (or let Smart Deck Matching handle it)
-4. Configure **Card Density**:
+1. Click **Select Document / Media** to choose a document, transcript (`.vtt`, `.srt`, `.json`), or podcast audio/video file
+2. Or click **Import YouTube / Podcast** and paste a YouTube video URL, a Podcasting 2.0 RSS feed URL, or a direct transcript URL
+3. Or click **Browse Podcast** to paste a feed URL and choose one of its transcribed episodes
+4. Click **Preview Transcript** to inspect the imported text before generating cards
+5. Select your target **Language** (e.g., English, Spanish, French)
+6. Choose which Anki decks the AI can assign cards to (or let Smart Deck Matching handle it)
+7. Configure **Card Density**:
    - **Low**: Big-picture concepts and key definitions
    - **Medium**: Balanced coverage of facts and concepts
    - **High**: Exhaustive detail extraction
-5. Click **Generate Cards**
+8. Click **Generate Cards**
+
+### Media & Transcript Sources
+
+| Source | How to import | Notes |
+|--------|---------------|-------|
+| YouTube video | Paste a watch, shorts, live or `youtu.be` URL | Uses public captions; disabled/private videos cannot be fetched. |
+| Podcast RSS feed | Paste the show's RSS feed URL | The feed must publish Podcasting 2.0 `<podcast:transcript>` links. **Import** takes the newest transcribed episode; **Browse Podcast** lets you pick one. |
+| Direct transcript | Paste a `.vtt`, `.srt`, `.txt`, `.json` or HTML transcript URL | Only the transcript text is downloaded. |
+| Transcript file | Select it with **Select Document / Media** | Best option when a site blocks automated access. |
+| Podcast audio/video | Select the local file | Requires `requirements-transcription.txt`; processing stays local. |
+
+> Spotify, Apple Podcasts and similar episode pages are not RSS feeds. Copy the show's RSS feed address from its website or podcast app, or download the episode and transcribe it locally.
 
 ### Step 5: Review & Sync
 
@@ -334,6 +368,9 @@ NeuralDeck/
 ├── main.py                 # Application entry point
 ├── ui.py                  # Main GUI (ttkbootstrap)
 ├── document_processor.py  # Document parsing & card generation
+├── transcript_formats.py  # VTT/SRT/JSON/HTML transcript parsing
+├── transcript_sources.py  # YouTube, podcast RSS and URL transcript import
+├── audio_transcription.py # Optional local faster-whisper adapter
 ├── pipeline_utils.py      # Utilities (stats, validation, logging)
 ├── settings_io.py         # Settings paths, atomic JSON persistence, numeric parsing
 ├── anki_integration.py   # HTTP client for Anki bridge
@@ -375,6 +412,8 @@ def main():
 | `_extract_text_from_docx()` | Word document parsing via python-docx |
 | `_extract_text_from_pptx()` | PowerPoint extraction via python-pptx |
 | `_extract_text_from_txt()` | Plain text file reading |
+| `_extract_text_from_transcript()` | VTT/SRT/JSON transcript parsing |
+| `_extract_text_from_audio()` | Local podcast/video transcription |
 | `extract_text_from_document()` | Unified dispatcher for all formats |
 | `check_llm_server()` | Connectivity check with fallback TCP probe |
 | `call_lm_studio()` | LLM API client with SSE streaming support |
@@ -383,6 +422,36 @@ def main():
 | `filter_and_process_cards()` | Card validation, deduplication, deck matching |
 | `refine_generated_cards()` | AI-powered quality improvement pass |
 | `generate_qa_pairs()` | Main pipeline orchestration with ThreadPoolExecutor |
+
+#### `transcript_sources.py` - Media Import
+
+| Function | Description |
+|----------|-------------|
+| `extract_youtube_video_id()` | Recognizes watch, shorts, live, embed and `youtu.be` URLs |
+| `fetch_youtube_transcript()` | Downloads the best public caption track via `youtube-transcript-api` |
+| `parse_podcast_feed_data()` | Parses an RSS feed into all transcribed episodes |
+| `parse_podcast_feed()` | Selects one episode from a feed, by newest or episode URL |
+| `fetch_podcast_feed()` | Downloads and lists a feed's transcribed episodes |
+| `fetch_podcast_transcript_for_ref()` | Downloads only the chosen episode's transcript |
+| `fetch_podcast_transcript()` | Downloads the newest transcribed episode from a feed |
+| `fetch_transcript_from_url()` | Dispatches YouTube, podcast feed and direct transcript URLs |
+
+#### `transcript_formats.py` - Transcript Parsing
+
+| Function | Description |
+|----------|-------------|
+| `parse_vtt()` / `parse_srt()` | Extract cue text and drop timings, tags and cue numbers |
+| `parse_podcast_json()` | Reads Podcasting 2.0 JSON and segment-list variants |
+| `clean_transcript_text()` | Normalizes whitespace and removes rolling-caption duplicates |
+| `parse_transcript()` | Sniffs the format and returns plain text |
+| `read_transcript_file()` | Reads a local transcript file with its extension as a hint |
+
+#### `audio_transcription.py` - Optional Local Speech-to-Text
+
+| Function | Description |
+|----------|-------------|
+| `is_audio_file()` | Recognizes supported podcast/video extensions |
+| `transcribe_audio()` | Lazily loads faster-whisper and transcribes locally |
 
 #### `pipeline_utils.py` - Utilities
 
@@ -415,8 +484,11 @@ def main():
 ### Data Flow
 
 ```text
-Document (.pdf/.docx/.pptx/.txt)
-  -> document_processor: extract text, chunk, generate cards through the local LLM
+Document (.pdf/.docx/.pptx/.txt), transcript (.vtt/.srt/.json), podcast audio/video
+YouTube URL, podcast RSS feed (newest or chosen episode), direct transcript URL
+  -> document_processor / transcript_sources: extract plain text
+  -> Preview Transcript: inspect the source before generation
+  -> document_processor: chunk, generate cards through the local LLM
   -> pipeline_utils: validate, deduplicate, match decks
   -> UI review and approval
   -> anki_integration -> Anki Bridge (localhost:5005) -> Anki
@@ -451,14 +523,18 @@ python -m pytest tests --cov=. --cov-report=html
 | Anki Integration | `test_anki_integration.py`, `test_anki_integration_get_deck_names.py` | ✓ |
 | Anki Addon | `test_anki_addon_logic.py`, `test_anki_addon_media.py` | ✓ |
 | Document Processor | `test_document_processor.py`, `test_document_processor_extra.py` | ✓ |
+| Transcript Formats | `test_transcript_formats.py` | ✓ |
+| Transcript Sources | `test_transcript_sources.py` | ✓ |
+| Audio Transcription | `test_audio_transcription.py` | ✓ |
 | Pipeline Utils | `test_pipeline_utils.py` | ✓ |
 | Settings I/O | `test_settings_io.py` | ✓ |
 | Theme Allowlist | `test_ui_themes.py` | ✓ |
+| UI Media Chooser | `test_ui_media.py` | ✓ |
 | Full Pipeline | `test_pipeline.py` | ✓ |
 | Failure Isolation | `test_failure_isolation.py` | ✓ |
 | Deterministic Mode | `test_deterministic.py` | ✓ |
 
-**Total: 134 tests** (platform- and dependency-specific tests are skipped when their prerequisite is absent)
+**Total: 187 tests** (platform-specific tests are skipped when their prerequisite is absent)
 
 ---
 
@@ -488,6 +564,37 @@ python -m pytest tests --cov=. --cov-report=html
 1. Use OCR tools (Adobe Acrobat, PDF24, or online services)
 2. Convert to text-selectable PDF before processing
 3. Try a different PDF source
+
+### YouTube Captions Unavailable
+
+**Symptoms**: "Could not fetch captions for YouTube video..." or a request-blocked error.
+
+**Solutions**:
+1. Confirm the video has public captions; disabled, private and age-restricted videos cannot be fetched.
+2. Try the video in a browser and copy a `.vtt`/`.srt` transcript file instead.
+3. If YouTube blocks the network, use a transcript file or transcribe downloaded audio locally.
+4. Keep `youtube-transcript-api` at the pinned version in `requirements.txt`.
+
+### Podcast Feed Has No Transcript
+
+**Symptoms**: "No Podcasting 2.0 transcript is published in..."
+
+**Cause**: The show does not link a `<podcast:transcript>` file for its episodes.
+
+**Solutions**:
+1. Pick an episode that publishes a transcript.
+2. Paste a direct transcript URL instead of the feed.
+3. Download the episode audio and select it for local transcription after installing `requirements-transcription.txt`.
+
+### Audio Transcription Is Missing
+
+**Symptoms**: "Local audio transcription is not installed."
+
+**Solutions**:
+1. Run `pip install -r requirements-transcription.txt`.
+2. Restart NeuralDeck after installing.
+3. The first transcription downloads a Whisper model; an offline machine must pre-download it.
+4. Select a `.vtt`/`.srt` transcript instead if one is available.
 
 ### LLM Connection Error
 
@@ -527,9 +634,15 @@ python -m pytest tests --cov=. --cov-report=html
 # Install PyInstaller
 pip install pyinstaller==6.22.3
 
-# Build executable
-pyinstaller --noconsole --onefile --name "NeuralDeck" main.py
+# Build executable (URL transcript support uses lazy imports)
+pyinstaller --noconsole --onefile --name "NeuralDeck" \
+  --hidden-import youtube_transcript_api \
+  --hidden-import defusedxml \
+  --hidden-import defusedxml.ElementTree \
+  main.py
 ```
+
+For a build that also transcribes local audio, add `--collect-all faster_whisper` and build from an environment where `requirements-transcription.txt` is installed. The model itself is downloaded at first use, not bundled.
 
 The executable is created at `dist/NeuralDeck.exe` on Windows.
 
@@ -543,8 +656,8 @@ The executable is created at `dist/NeuralDeck.exe` on Windows.
 
 ## Security
 
-- **Local-Only Processing**: All document processing happens on your machine
-- **No Cloud Services**: Zero data leaves your computer
+- **Local Processing**: Documents, transcript files and audio stay on your machine; audio is never uploaded
+- **User-Initiated Fetching**: A YouTube or podcast URL import downloads only the transcript text you request; no document, audio or card is sent anywhere
 - **Localhost Communication**: Anki bridge restricts to 127.0.0.1 only
 - **Path Traversal Protection**: Media file handling includes security checks
 - **Input Validation**: Card content is validated before Anki submission
@@ -554,6 +667,9 @@ The executable is created at `dist/NeuralDeck.exe` on Windows.
 | Data | Location | Encryption |
 |------|----------|------------|
 | Documents | RAM only | N/A |
+| Audio / video | Decoded locally; never uploaded | N/A |
+| Imported transcripts | RAM only | N/A |
+| YouTube / podcast URLs | Sent to their hosts to fetch transcript text | HTTPS where offered |
 | Generated Cards | `session_cache.json` beside the resolved config | None |
 | Settings | `config.json` beside the app, or `NEURALDECK_CONFIG` | None |
 | Logs | `session.log` beside the app, or `NEURALDECK_LOG` | None |

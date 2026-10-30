@@ -33,6 +33,20 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Decision**: Untrack `config.json`, ignore it, and commit `config.example.json` with the documented defaults and an empty `selected_decks` list. A fresh checkout may copy the example, while the UI creates `config.json` on the first save if it is absent.
 - **Consequences**: Personal settings no longer appear in commits or on the remote; the default configuration remains documented and testable; an existing local `config.json` keeps working because untracking does not delete the working file.
 
+### ADR-004: Import media transcripts instead of downloading media
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: Users want cards from YouTube videos and podcasts, but NeuralDeck is a local, privacy-first desktop app. YouTube exposes caption tracks, many podcasts publish Podcasting 2.0 `<podcast:transcript>` files, and some episodes have neither.
+- **Decision**: Add `transcript_sources.py`, `transcript_formats.py` and `audio_transcription.py`. YouTube captions are fetched with the pinned `youtube-transcript-api` package; podcast feeds are parsed with `defusedxml` and only the linked transcript text is downloaded; direct `.vtt`/`.srt`/`.json`/HTML/plain transcript URLs are accepted. Local audio/video files can be transcribed through optional `faster-whisper`, installed from `requirements-transcription.txt`, which never uploads the audio. Downloads are limited to 10 MB with a 20-second timeout, and every unsupported source returns a Why/Fix message instead of silently degrading.
+- **Consequences**: URL imports make a network request to the host the user names and need `youtube-transcript-api`/`defusedxml` at runtime. Audio transcription is opt-in, downloads a model on first use, and is not bundled in the base install. YouTube can still block caption requests; the documented fallback is a local transcript file or local audio transcription.
+
+### ADR-005: Browse podcast episodes before downloading a transcript
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: A feed can publish transcripts for many episodes. Picking the newest one silently is safe but not predictable, and users could not inspect imported text before spending LLM time.
+- **Decision**: Keep one pure feed parser that returns a `PodcastFeed` of `PodcastTranscriptRef` records (including the episode's link, GUID and enclosure URLs). `fetch_podcast_feed` downloads the feed once for the chooser, and `fetch_podcast_transcript_for_ref` downloads only the selected transcript. The UI shows a modal episode table, then a read-only transcript preview capped at 50,000 characters. The existing `parse_podcast_feed`/`fetch_podcast_transcript` behavior stays available for callers that want the newest episode.
+- **Consequences**: Episode selection adds no dependency and avoids re-downloading the feed when the chosen transcript is fetched. The feed is parsed on a worker thread and the chooser runs on the UI thread. A feed with one transcribed episode skips the chooser. Transcripts remain in memory only.
+
 ## Licensing migration (agpl-final)
 
 - New versions use the Aegean License 1.1 (AL-1.1); versions up to and including `agpl-final` remain under GNU AGPL-3.0.

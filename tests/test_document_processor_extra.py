@@ -43,6 +43,32 @@ class TestExtractTextFromDocument(unittest.TestCase):
         self.assertEqual(result, "Pdf content")
         mock_pdf.assert_called_once_with("test.pdf", None)
 
+    @patch('document_processor._extract_text_from_transcript')
+    def test_extract_vtt_transcript(self, mock_transcript):
+        mock_transcript.return_value = "Transcript content"
+        result = extract_text_from_document("captions.vtt")
+        self.assertEqual(result, "Transcript content")
+        mock_transcript.assert_called_once_with("captions.vtt", None)
+
+    @patch('document_processor._extract_text_from_transcript')
+    def test_extract_srt_transcript(self, mock_transcript):
+        mock_transcript.return_value = "Transcript content"
+        result = extract_text_from_document("captions.srt")
+        self.assertEqual(result, "Transcript content")
+
+    @patch('document_processor._extract_text_from_transcript')
+    def test_extract_json_transcript(self, mock_transcript):
+        mock_transcript.return_value = "Transcript content"
+        result = extract_text_from_document("captions.json")
+        self.assertEqual(result, "Transcript content")
+
+    @patch('document_processor._extract_text_from_audio')
+    def test_extract_audio_transcript(self, mock_audio):
+        mock_audio.return_value = "Spoken content"
+        result = extract_text_from_document("episode.mp3")
+        self.assertEqual(result, "Spoken content")
+        mock_audio.assert_called_once_with("episode.mp3", None)
+
     def test_unsupported_format(self):
         with self.assertRaises(ValueError) as cm:
             extract_text_from_document("test.xyz")

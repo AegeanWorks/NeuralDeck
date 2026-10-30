@@ -1,103 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "reforge:run-1",
+    "task_id": "media-browse-v1",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
-    "updated_at": 1793293511.335835,
-    "owner": "opencode:reforge-followup",
-    "started_by": "opencode:reforge-followup",
-    "continuations": []
+    "active_phase": 5,
+    "status": "completed",
+    "updated_at": 1793371384.9575288,
+    "owner": "opencode:neuraldeck-media",
+    "started_by": "opencode:neuraldeck-media",
+    "continuations": [],
+    "completed_at": 1793371389.2512767
   },
   "checkpoints": [
-    {
-      "task_id": "settings-io-hardening-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[review fixes 3] Quarantine only malformed/wrong-shaped JSON; I/O-unreadable files stay and block saves. Config values normalized; invalid theme falls back. Session entries validated; structural failures quarantine and block overwrite. Added cross-process lock file, eliminated ReplaceFileW contention errors/leftovers. Docs/map synced. Tests 131 pass + 1 platform skip; checklists: passed.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792665781.3772876,
-      "timestamp_str": "2026-10-22 13:43:01"
-    },
-    {
-      "task_id": "settings-io-hardening-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[release gate] Session restore failures now block close-time cache overwrite; theme allowlist validated against ttkbootstrap 2.2.3 (cerculean); Windows metadata guarantee qualified to NTFS; GUI smoke and documented PyInstaller one-file smoke both passed; complete change set staged. Tests 131 pass + 1 platform skip; checklists: passed.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792673228.2237449,
-      "timestamp_str": "2026-10-22 15:47:08"
-    },
-    {
-      "task_id": "settings-io-hardening-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[release gate 2] Pinned runtime dependencies; exposed all 18 verified ttkbootstrap standard themes; added Clear All recovery for blocked session cache; documented persistent lock files and Windows copy; added requirements/example drift tests. GUI all-theme and config-save smoke passed; packaged one-file rebuilt from pinned deps and ran with log beside exe. Tests 132 pass + 1 platform skip; checklists: passed.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792676403.702123,
-      "timestamp_str": "2026-10-22 16:40:03"
-    },
-    {
-      "task_id": "settings-io-hardening-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[release gate 3] Fully pinned transitive runtime dependencies; added explicit config recovery prompt that quarantines an unreadable config after consent; added automated theme-allowlist guard against installed ttkbootstrap; verified config/session recovery flows in GUI; rebuilt and ran final one-file executable from the pinned environment. Tests 132 pass + 2 prerequisite skips; checklists: passed.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792683585.2401698,
-      "timestamp_str": "2026-10-22 18:39:45"
-    },
-    {
-      "task_id": "settings-io-hardening-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'settings-io-hardening-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1792691355.7719853,
-      "timestamp_str": "2026-10-22 20:49:15"
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 14",
-      "phase_num": 3,
-      "description": "Reforge stage 14: window 42, 3 commit(s), 3 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793292686.468443,
-      "timestamp_str": "2026-10-29 19:51:26",
-      "agent": "opencode"
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 15",
-      "phase_num": 3,
-      "description": "Reforge stage 15: window 45, 3 commit(s), 4 file(s) reviewed (unreviewed), 1 finding(s), 0 repaired (regression=1)",
-      "files_affected": [
-        "document_processor.py"
-      ],
-      "status": "in_progress",
-      "timestamp": 1793292723.4284787,
-      "timestamp_str": "2026-10-29 19:52:03",
-      "agent": "opencode"
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 16",
-      "phase_num": 3,
-      "description": "Reforge stage 16: window 48, 3 commit(s), 11 file(s) reviewed (unreviewed), 3 finding(s), 0 repaired (defect=1, regression=1, reliability=1)",
-      "files_affected": [
-        "document_processor.py",
-        "pipeline_utils.py"
-      ],
-      "status": "in_progress",
-      "timestamp": 1793292989.7890067,
-      "timestamp_str": "2026-10-29 19:56:29",
-      "agent": "opencode"
-    },
     {
       "task_id": "reforge:run-1",
       "phase": "reforge stage 16",
@@ -242,6 +156,110 @@
       "timestamp": 1793294068.026145,
       "timestamp_str": "2026-10-29 20:14:28",
       "agent": "opencode"
+    },
+    {
+      "task_id": "reforge:run-1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'reforge:run-1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793364011.4691596,
+      "timestamp_str": "2026-10-30 15:40:11",
+      "agent": "opencode:neuraldeck-media",
+      "continued_from": "opencode:reforge-followup"
+    },
+    {
+      "task_id": "media-import-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/5] Build transcript ingestion: parse VTT/SRT/Podcasting 2.0 JSON/HTML/plain text, extract YouTube captions, discover Podcasting 2.0 transcripts from RSS feeds, and fetch direct transcript URLs; cover with mocked-network unit tests.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793364019.3828027,
+      "timestamp_str": "2026-10-30 15:40:19",
+      "agent": "opencode:neuraldeck-media",
+      "impact_assessment": {
+        "why": "NeuralDeck can only build cards from local documents; users want podcast and YouTube sources turned into cards without manual copy-paste.",
+        "benefits": "Adds podcast RSS and YouTube URL sources plus transcript-file support, reusing the existing chunking/card pipeline and keeping processing local.",
+        "risks": "contract: new public media module consumed by UI and document_processor; dependency: youtube-transcript-api/defusedxml, optional faster-whisper; concurrency: UI import runs on a worker thread; state: imported transcript held in memory only, no new persisted fields.",
+        "mitigation": "Pure parsers separated from network fetches, lazy optional imports, bounded downloads/timeouts, mocked-network tests, and UI updates marshalled with after()."
+      }
+    },
+    {
+      "task_id": "media-import-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Re-plan: deliver media transcript import as one atomic change (transcript parsers, YouTube/podcast fetchers, optional local Whisper, UI import flow, docs) because intermediate commits cannot pass the README tree and codebase-map gate separately.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793364832.509858,
+      "timestamp_str": "2026-10-30 15:53:52",
+      "agent": "opencode:neuraldeck-media",
+      "impact_assessment": {
+        "why": "The original five milestones share one public surface and one documentation tree; splitting them would leave intermediate commits with stale maps and incomplete README trees.",
+        "benefits": "One reviewable change with a single test/gate run and an exact rollback point.",
+        "risks": "contract: media API and UI run_process signature change together; dependency: new runtime packages and optional Whisper; concurrency: URL import uses a worker thread; state: no persisted transcript state.",
+        "mitigation": "Keep the pure parsers separate, mock all network calls in tests, lazy-load optional audio support, and run the project check on the complete tree."
+      }
+    },
+    {
+      "task_id": "media-import-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[milestone 1/1] Media transcript import delivered: VTT/SRT/JSON/HTML/plain parsing, YouTube captions, Podcasting 2.0 RSS discovery, direct URL import, optional local faster-whisper, UI import flow, README/ADR updates. Tests 179 pass + 2 prerequisite skips; checklists: passed (test, hygiene, guidelines, secrets). Uncommitted: aikit check --strict is blocked by the pre-existing UI contract surface (only requirements.txt) needing a human-reviewed UI task.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793364838.9599917,
+      "timestamp_str": "2026-10-30 15:53:58",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "media-import-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'media-import-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793364844.4875796,
+      "timestamp_str": "2026-10-30 15:54:04",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "media-browse-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Add podcast episode browsing and transcript preview: expose the feed's transcribed episodes, let the user pick one, fetch only that transcript, and show an in-app preview before generating cards.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793371099.5421367,
+      "timestamp_str": "2026-10-30 17:38:19",
+      "agent": "opencode:neuraldeck-media",
+      "impact_assessment": {
+        "why": "The feed import currently picks the newest transcribed episode automatically, so users cannot choose a specific episode or inspect the imported text before spending LLM time.",
+        "benefits": "Makes podcast ingestion predictable and reviewable, reuses one feed parse, and downloads only the chosen transcript.",
+        "risks": "contract: PodcastTranscriptRef gains episode_url and new public feed functions; dependency: none; concurrency: feed fetch and transcript fetch stay on worker threads while dialogs run on the UI thread; state: selected episode remains in memory only.",
+        "mitigation": "Keep parsing pure, preserve existing parse/fetch behavior for callers, mock all network calls in tests, and verify the UI with a headless smoke run."
+      }
+    },
+    {
+      "task_id": "media-browse-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[milestone 1/1] Podcast episode browsing and transcript preview delivered: PodcastFeed/PodcastTranscriptRef listing, feed fetch once, selected-transcript fetch, modal episode chooser, read-only preview capped at 50k chars, tests and docs. Tests 186 pass + 1 skip; checklists: passed (test, hygiene, guidelines, secrets). Uncommitted; strict UI contract still needs a human-reviewed UI task.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793371384.9575288,
+      "timestamp_str": "2026-10-30 17:43:04",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "media-browse-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'media-browse-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793371389.251278,
+      "timestamp_str": "2026-10-30 17:43:09",
+      "agent": "opencode:neuraldeck-media"
     }
   ]
 }

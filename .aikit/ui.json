@@ -3,6 +3,8 @@
   "surfaces": {
     "app": {
       "paths": [
+        "main.py",
+        "ui.py",
         "requirements.txt"
       ]
     }
