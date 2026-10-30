@@ -47,6 +47,13 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Decision**: Keep one pure feed parser that returns a `PodcastFeed` of `PodcastTranscriptRef` records (including the episode's link, GUID and enclosure URLs). `fetch_podcast_feed` downloads the feed once for the chooser, and `fetch_podcast_transcript_for_ref` downloads only the selected transcript. The UI shows a modal episode table, then a read-only transcript preview capped at 50,000 characters. The existing `parse_podcast_feed`/`fetch_podcast_transcript` behavior stays available for callers that want the newest episode.
 - **Consequences**: Episode selection adds no dependency and avoids re-downloading the feed when the chosen transcript is fetched. The feed is parsed on a worker thread and the chooser runs on the UI thread. A feed with one transcribed episode skips the chooser. Transcripts remain in memory only.
 
+### ADR-006: Resolve Apple Podcasts links through iTunes lookup and RSS
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: Users usually have Apple Podcasts links, while NeuralDeck needs an RSS feed and a Podcasting 2.0 transcript. Apple does not expose a transcript API in that lookup response.
+- **Decision**: Parse `/id<collection>` and `?i=<episode>` from Apple Podcasts URLs, resolve the show's `feedUrl` through `https://itunes.apple.com/lookup`, and read an episode page's Open Graph title to match the feed item. Reuse the existing feed parser and download only the matched transcript. A show URL opens the normal episode chooser; an episode URL matches by normalized title and fails with a Why/Fix message when the episode has no transcript or no readable title.
+- **Consequences**: Apple show links work without scraping the show page, and episode links work only when Apple exposes its title metadata and the feed publishes a transcript for that episode. The page fetch is bounded to 2 MB and is skipped for show URLs. No new dependency or credential is introduced.
+
 ## Licensing migration (agpl-final)
 
 - New versions use the Aegean License 1.1 (AL-1.1); versions up to and including `agpl-final` remain under GNU AGPL-3.0.

@@ -130,7 +130,7 @@ It's designed for students, researchers, and lifelong learners who want to autom
 |---------|-------------|
 | **Local First Processing** | Connects to any OpenAI-compatible local server, with a default setup for LM Studio. |
 | **Multi-Document Support** | Extracts text from PDF, Word (`.docx`), PowerPoint (`.pptx`), and plain text (`.txt`) files. |
-| **YouTube & Podcast Sources** | Imports YouTube captions, Podcasting 2.0 RSS transcripts, and `.vtt`/`.srt`/JSON transcript files; browse a feed's transcribed episodes and preview the text before generating cards. |
+| **YouTube & Podcast Sources** | Imports YouTube captions, Podcasting 2.0 RSS transcripts, Apple Podcasts show/episode URLs, and `.vtt`/`.srt`/JSON transcript files; browse a feed's transcribed episodes and preview the text before generating cards. |
 | **Smart Deck Matching** | Automatically categorizes generated cards into your existing Anki decks by analyzing content. |
 | **AI Refinement Mode** | Optional second AI pass for grammar correction, question clarity, and consistency. |
 | **High-Density Generation** | Forces exhaustive detail extraction for complex subjects like medicine or law. |
@@ -254,7 +254,7 @@ YouTube captions, `.vtt`/`.srt` files and Podcasting 2.0 transcripts need no ext
 pip install -r requirements-transcription.txt
 ```
 
-The first transcription downloads a small Whisper model and caches it locally; after that, the audio is decoded and transcribed entirely on your machine. Audio is never uploaded.
+The first transcription downloads and caches a Whisper model; afterwards audio is decoded and transcribed on your machine.
 
 ---
 
@@ -281,8 +281,8 @@ python main.py
 ### Step 4: Generate Cards
 
 1. Click **Select Document / Media** to choose a document, transcript (`.vtt`, `.srt`, `.json`), or podcast audio/video file
-2. Or click **Import YouTube / Podcast** and paste a YouTube video URL, a Podcasting 2.0 RSS feed URL, or a direct transcript URL
-3. Or click **Browse Podcast** to paste a feed URL and choose one of its transcribed episodes
+2. Or click **Import YouTube / Podcast** and paste a YouTube video URL, a Podcasting 2.0 RSS feed URL, an Apple Podcasts show/episode URL, or a direct transcript URL
+3. Or click **Browse Podcast** to paste an RSS feed or Apple Podcasts show URL and choose one of its transcribed episodes
 4. Click **Preview Transcript** to inspect the imported text before generating cards
 5. Select your target **Language** (e.g., English, Spanish, French)
 6. Choose which Anki decks the AI can assign cards to (or let Smart Deck Matching handle it)
@@ -298,11 +298,12 @@ python main.py
 |--------|---------------|-------|
 | YouTube video | Paste a watch, shorts, live or `youtu.be` URL | Uses public captions; disabled/private videos cannot be fetched. |
 | Podcast RSS feed | Paste the show's RSS feed URL | The feed must publish Podcasting 2.0 `<podcast:transcript>` links. **Import** takes the newest transcribed episode; **Browse Podcast** lets you pick one. |
+| Apple Podcasts | Paste a show or episode URL | Resolved to the show's RSS feed through the iTunes lookup API. Episode URLs are matched by their page title; if the episode has no transcript, use **Browse Podcast**. |
 | Direct transcript | Paste a `.vtt`, `.srt`, `.txt`, `.json` or HTML transcript URL | Only the transcript text is downloaded. |
 | Transcript file | Select it with **Select Document / Media** | Best option when a site blocks automated access. |
 | Podcast audio/video | Select the local file | Requires `requirements-transcription.txt`; processing stays local. |
 
-> Spotify, Apple Podcasts and similar episode pages are not RSS feeds. Copy the show's RSS feed address from its website or podcast app, or download the episode and transcribe it locally.
+> Spotify episode pages are not RSS feeds; copy the show's RSS address or download the audio for local transcription.
 
 ### Step 5: Review & Sync
 
@@ -429,6 +430,8 @@ def main():
 |----------|-------------|
 | `extract_youtube_video_id()` | Recognizes watch, shorts, live, embed and `youtu.be` URLs |
 | `fetch_youtube_transcript()` | Downloads the best public caption track via `youtube-transcript-api` |
+| `extract_apple_podcast_ids()` | Reads collection and episode ids from Apple Podcasts URLs |
+| `resolve_apple_podcast_url()` | Resolves an Apple show/episode page to its RSS feed |
 | `parse_podcast_feed_data()` | Parses an RSS feed into all transcribed episodes |
 | `parse_podcast_feed()` | Selects one episode from a feed, by newest or episode URL |
 | `fetch_podcast_feed()` | Downloads and lists a feed's transcribed episodes |
@@ -485,7 +488,7 @@ def main():
 
 ```text
 Document (.pdf/.docx/.pptx/.txt), transcript (.vtt/.srt/.json), podcast audio/video
-YouTube URL, podcast RSS feed (newest or chosen episode), direct transcript URL
+YouTube URL, podcast RSS feed (newest or chosen episode), Apple Podcasts URL, direct transcript URL
   -> document_processor / transcript_sources: extract plain text
   -> Preview Transcript: inspect the source before generation
   -> document_processor: chunk, generate cards through the local LLM
@@ -534,7 +537,7 @@ python -m pytest tests --cov=. --cov-report=html
 | Failure Isolation | `test_failure_isolation.py` | ✓ |
 | Deterministic Mode | `test_deterministic.py` | ✓ |
 
-**Total: 187 tests** (platform-specific tests are skipped when their prerequisite is absent)
+**Total: 196 tests** (platform-specific tests are skipped when their prerequisite is absent)
 
 ---
 

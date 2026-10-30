@@ -5,6 +5,8 @@ captions use ``youtube-transcript-api`` and podcast shows expose transcripts
 through the Podcasting 2.0 ``<podcast:transcript>`` tag.
 """
 
+import html
+import json
 import re
 import urllib.error
 import urllib.parse
@@ -22,6 +24,8 @@ USER_AGENT = "NeuralDeck/0.2 (+https://github.com/Aegean-E/NeuralDeck)"
 
 _YOUTUBE_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 _YOUTUBE_HOSTS = {"youtube.com", "m.youtube.com", "music.youtube.com", "youtube-nocookie.com"}
+_APPLE_HOSTS = {"podcasts.apple.com", "itunes.apple.com"}
+_APPLE_ID = re.compile(r"(?:^|/)id(\d+)")
 _LANGUAGE_CODES = {
     "english": "en",
     "turkish": "tr",
@@ -68,6 +72,15 @@ class PodcastFeed:
     title: str
     feed_url: str
     episodes: tuple
+
+
+@dataclass(frozen=True)
+class ApplePodcastSource:
+    collection_id: str
+    episode_id: str
+    feed_url: str
+    episode_title: str
+    page_url: str
 
 
 def language_codes(language):
@@ -157,6 +170,122 @@ def _decode(data, charset):
         return data.decode(charset or "utf-8", errors="replace")
     except LookupError:
         return data.decode("utf-8", errors="replace")
+
+
+def extract_apple_podcast_ids(value):
+    """Return (collection_id, episode_id) from an Apple Podcasts URL."""
+    value = (value or "").strip()
+    if not value:
+        return None
+    parsed = urllib.parse.urlparse(value if "://" in value else f"https://{value}")
+    host = (parsed.hostname or "").lower()
+    if host.startswith("www."):
+        host = host[4:]
+    if host not in _APPLE_HOSTS:
+        return None
+    match = _APPLE_ID.search(parsed.path)
+    if not match:
+        return None
+    episode_id = urllib.parse.parse_qs(parsed.query).get("i", [""])[0]
+    if episode_id and not episode_id.isdigit():
+        episode_id = ""
+    return match.group(1), episode_id
+
+
+def _fetch_json(url, max_bytes=1024 * 1024):
+    data, _, charset = _fetch_url_bytes(url, max_bytes=max_bytes)
+    try:
+        return json.loads(_decode(data, charset))
+    except ValueError as exc:
+        raise TranscriptError(
+            "The podcast directory returned an unreadable response.\n"
+            "Why: the lookup API did not return valid JSON.\n"
+            "Fix: try the show's RSS feed URL directly."
+        ) from exc
+
+
+def _apple_page_title(url):
+    """Read the episode title from Apple's Open Graph metadata."""
+    data, _, charset = _fetch_url_bytes(url, max_bytes=2 * 1024 * 1024)
+    page = _decode(data, charset)
+    patterns = (
+        r'<meta[^>]+(?:property|name)=["\']og:title["\'][^>]*content=["\']([^"\']*)["\']',
+        r'<meta[^>]+content=["\']([^"\']*)["\'][^>]*(?:property|name)=["\']og:title["\']',
+        r"<title>(.*?)</title>",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, page, re.IGNORECASE | re.DOTALL)
+        if match:
+            title = html.unescape(match.group(1)).strip()
+            if title:
+                return re.split(r"\s+-\s+Apple Podcasts$", title, flags=re.IGNORECASE)[0].strip()
+    return ""
+
+
+def resolve_apple_podcast_url(url):
+    """Resolve an Apple Podcasts show or episode URL to its RSS feed."""
+    ids = extract_apple_podcast_ids(url)
+    if not ids:
+        return None
+    collection_id, episode_id = ids
+    lookup_url = "https://itunes.apple.com/lookup?" + urllib.parse.urlencode(
+        {"id": collection_id, "entity": "podcast"}
+    )
+    payload = _fetch_json(lookup_url)
+    results = payload.get("results") if isinstance(payload, dict) else None
+    feed_url = next(
+        (result.get("feedUrl") for result in (results or []) if result.get("feedUrl")),
+        "",
+    )
+    if not feed_url:
+        raise TranscriptError(
+            "Apple Podcasts did not return an RSS feed for this show.\n"
+            "Why: the show may be unavailable, region-locked or no longer published.\n"
+            "Fix: open the show in a podcast app and copy its RSS feed address."
+        )
+
+    episode_title = ""
+    if episode_id:
+        try:
+            episode_title = _apple_page_title(url)
+        except TranscriptError:
+            # The feed still supports browsing; only the automatic episode match is lost.
+            episode_title = ""
+    return ApplePodcastSource(
+        collection_id=collection_id,
+        episode_id=episode_id,
+        feed_url=feed_url,
+        episode_title=episode_title,
+        page_url=url,
+    )
+
+
+def _normalized_title(value):
+    return re.sub(r"\W+", " ", html.unescape(value or "").casefold()).strip()
+
+
+def _find_episode_by_title(feed, title):
+    wanted = _normalized_title(title)
+    if not wanted:
+        return None
+    for ref in feed.episodes:
+        if _normalized_title(ref.episode_title) == wanted:
+            return ref
+    for ref in feed.episodes:
+        candidate = _normalized_title(ref.episode_title)
+        if candidate and (wanted in candidate or candidate in wanted):
+            return ref
+    return None
+
+
+def _select_feed_episode(feed, language="English"):
+    newest = feed.episodes[0]
+    code = language_codes(language)[0]
+    if newest.language and newest.language != code:
+        for ref in feed.episodes:
+            if ref.language == code:
+                return ref
+    return newest
 
 
 def _load_youtube_transcript_api():
@@ -395,13 +524,7 @@ def parse_podcast_feed(xml_text, feed_url="", episode_url=None, language="Englis
             "Fix: omit the episode URL to use the newest transcribed episode, or pick another feed."
         )
 
-    newest = feed.episodes[0]
-    code = language_codes(language)[0]
-    if newest.language and newest.language != code:
-        for ref in feed.episodes:
-            if ref.language == code:
-                return ref
-    return newest
+    return _select_feed_episode(feed, language)
 
 
 def _hint_from_type(content_type):
@@ -453,6 +576,11 @@ def _transcript_from_ref(ref, log_callback=None):
 
 def fetch_podcast_feed(feed_url, language="English", log_callback=None):
     """Download and parse a feed into its transcribed episodes."""
+    if extract_apple_podcast_ids(feed_url):
+        source = resolve_apple_podcast_url(feed_url)
+        feed_url = source.feed_url
+        if log_callback:
+            log_callback("Resolved the Apple Podcasts page to its RSS feed.")
     if log_callback:
         log_callback("Downloading podcast feed...")
     data, _, _ = _fetch_url_bytes(feed_url)
@@ -499,6 +627,26 @@ def fetch_transcript_from_url(url, language="English", log_callback=None):
     if _is_youtube_url(url):
         # Let the YouTube path produce the precise "not a single video" error.
         return fetch_youtube_transcript(url, language=language, log_callback=log_callback)
+
+    if extract_apple_podcast_ids(url):
+        source = resolve_apple_podcast_url(url)
+        feed = fetch_podcast_feed(source.feed_url, language=language, log_callback=log_callback)
+        ref = _find_episode_by_title(feed, source.episode_title)
+        if ref is None and source.episode_id:
+            if source.episode_title:
+                raise TranscriptError(
+                    f"The Apple Podcasts episode '{source.episode_title}' has no published transcript.\n"
+                    "Why: it did not match any transcribed episode in the show's RSS feed.\n"
+                    "Fix: use Browse Podcast to pick another episode, or transcribe the audio locally."
+                )
+            raise TranscriptError(
+                "Could not identify which Apple Podcasts episode this link points to.\n"
+                "Why: the episode page did not expose a readable title.\n"
+                "Fix: use Browse Podcast with the show URL, or paste the RSS feed URL."
+            )
+        if ref is None:
+            ref = _select_feed_episode(feed, language)
+        return fetch_podcast_transcript_for_ref(ref, log_callback=log_callback)
 
     data, content_type, charset = _fetch_url_bytes(url)
     raw = _decode(data, charset)

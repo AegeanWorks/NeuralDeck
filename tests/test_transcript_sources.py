@@ -8,7 +8,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import transcript_sources
 from transcript_sources import (
+    ApplePodcastSource,
+    PodcastFeed,
+    PodcastTranscriptRef,
     TranscriptError,
+    extract_apple_podcast_ids,
     extract_youtube_video_id,
     fetch_podcast_feed,
     fetch_podcast_transcript,
@@ -18,6 +22,7 @@ from transcript_sources import (
     language_codes,
     parse_podcast_feed,
     parse_podcast_feed_data,
+    resolve_apple_podcast_url,
 )
 
 
@@ -265,6 +270,130 @@ class TestPodcastFeed(unittest.TestCase):
         self.assertEqual(result.kind, "podcast")
         self.assertEqual(result.title, "Learning Lab: Episode 2: Memory")
         self.assertIn("Podcast transcripts become flashcards.", result.text)
+
+
+class TestApplePodcasts(unittest.TestCase):
+    def test_show_and_episode_urls_are_recognized(self):
+        self.assertEqual(
+            extract_apple_podcast_ids(
+                "https://podcasts.apple.com/us/podcast/podcasting-2-0/id1584274529"
+            ),
+            ("1584274529", ""),
+        )
+        self.assertEqual(
+            extract_apple_podcast_ids(
+                "https://podcasts.apple.com/us/podcast/podcasting-2-0/id1584274529?i=1000797833454"
+            ),
+            ("1584274529", "1000797833454"),
+        )
+        self.assertEqual(
+            extract_apple_podcast_ids(
+                "itunes.apple.com/us/podcast/show/id123?i=456"
+            ),
+            ("123", "456"),
+        )
+        self.assertIsNone(extract_apple_podcast_ids("https://example.com/podcast/id123"))
+        self.assertIsNone(extract_apple_podcast_ids("https://podcasts.apple.com/us/podcast/show"))
+
+    def test_resolve_show_url_uses_the_itunes_feed(self):
+        with patch.object(
+            transcript_sources,
+            "_fetch_json",
+            return_value={"results": [{"feedUrl": "https://example.com/feed.xml"}]},
+        ) as lookup:
+            source = resolve_apple_podcast_url(
+                "https://podcasts.apple.com/us/podcast/show/id1584274529"
+            )
+        self.assertEqual(source.feed_url, "https://example.com/feed.xml")
+        self.assertEqual(source.collection_id, "1584274529")
+        self.assertEqual(source.episode_id, "")
+        self.assertEqual(source.episode_title, "")
+        lookup.assert_called_once()
+
+    def test_resolve_episode_url_reads_the_page_title(self):
+        with patch.object(
+            transcript_sources,
+            "_fetch_json",
+            return_value={"results": [{"feedUrl": "https://example.com/feed.xml"}]},
+        ), patch.object(
+            transcript_sources,
+            "_apple_page_title",
+            return_value='Episode 276: "Jackleg leechers"',
+        ):
+            source = resolve_apple_podcast_url(
+                "https://podcasts.apple.com/us/podcast/show/id1584274529?i=1000797833454"
+            )
+        self.assertEqual(source.episode_id, "1000797833454")
+        self.assertEqual(source.episode_title, 'Episode 276: "Jackleg leechers"')
+
+    def test_apple_page_title_reads_open_graph_metadata(self):
+        page = '<html><head><meta property="og:title" content="Episode 1: &quot;Sleep&quot;"></head></html>'
+        with patch.object(
+            transcript_sources,
+            "_fetch_url_bytes",
+            return_value=(page.encode("utf-8"), "text/html", "utf-8"),
+        ):
+            title = transcript_sources._apple_page_title("https://podcasts.apple.com/episode")
+        self.assertEqual(title, 'Episode 1: "Sleep"')
+
+    def test_apple_show_url_uses_the_newest_transcribed_episode(self):
+        source = ApplePodcastSource("1584274529", "", "https://example.com/feed.xml", "", "https://apple")
+        feed = parse_podcast_feed_data(FEED)
+        expected = transcript_sources.TranscriptResult("text", "title", "url", "podcast")
+        with patch.object(transcript_sources, "resolve_apple_podcast_url", return_value=source), \
+             patch.object(transcript_sources, "fetch_podcast_feed", return_value=feed), \
+             patch.object(transcript_sources, "fetch_podcast_transcript_for_ref", return_value=expected) as fetch:
+            result = fetch_transcript_from_url("https://podcasts.apple.com/us/podcast/show/id1584274529")
+        self.assertIs(result, expected)
+        self.assertEqual(fetch.call_args.args[0].episode_title, "Episode 2: Memory")
+
+    def test_apple_episode_url_matches_the_transcript_by_title(self):
+        source = ApplePodcastSource(
+            "1584274529", "1000797833454", "https://example.com/feed.xml",
+            "Episode 1: Sleep", "https://apple",
+        )
+        feed = parse_podcast_feed_data(FEED)
+        expected = transcript_sources.TranscriptResult("text", "title", "url", "podcast")
+        with patch.object(transcript_sources, "resolve_apple_podcast_url", return_value=source), \
+             patch.object(transcript_sources, "fetch_podcast_feed", return_value=feed), \
+             patch.object(transcript_sources, "fetch_podcast_transcript_for_ref", return_value=expected) as fetch:
+            fetch_transcript_from_url("https://podcasts.apple.com/us/podcast/show/id1584274529?i=1000797833454")
+        self.assertEqual(fetch.call_args.args[0].episode_title, "Episode 1: Sleep")
+
+    def test_apple_episode_without_a_transcript_is_reported(self):
+        source = ApplePodcastSource(
+            "1584274529", "1000797833454", "https://example.com/feed.xml",
+            "Untranscribed episode", "https://apple",
+        )
+        feed = parse_podcast_feed_data(FEED)
+        with patch.object(transcript_sources, "resolve_apple_podcast_url", return_value=source), \
+             patch.object(transcript_sources, "fetch_podcast_feed", return_value=feed):
+            with self.assertRaises(TranscriptError) as raised:
+                fetch_transcript_from_url("https://podcasts.apple.com/us/podcast/show/id1584274529?i=1")
+        self.assertIn("no published transcript", str(raised.exception))
+
+    def test_apple_episode_without_a_title_is_reported(self):
+        source = ApplePodcastSource(
+            "1584274529", "1000797833454", "https://example.com/feed.xml", "", "https://apple",
+        )
+        feed = parse_podcast_feed_data(FEED)
+        with patch.object(transcript_sources, "resolve_apple_podcast_url", return_value=source), \
+             patch.object(transcript_sources, "fetch_podcast_feed", return_value=feed):
+            with self.assertRaises(TranscriptError) as raised:
+                fetch_transcript_from_url("https://podcasts.apple.com/us/podcast/show/id1584274529?i=1")
+        self.assertIn("Could not identify", str(raised.exception))
+
+    def test_fetch_podcast_feed_resolves_an_apple_show_url(self):
+        source = ApplePodcastSource("1584274529", "", "https://example.com/feed.xml", "", "https://apple")
+        with patch.object(transcript_sources, "resolve_apple_podcast_url", return_value=source), \
+             patch.object(
+                 transcript_sources,
+                 "_fetch_url_bytes",
+                 return_value=(FEED.encode("utf-8"), "application/rss+xml", "utf-8"),
+             ) as fetch:
+            feed = fetch_podcast_feed("https://podcasts.apple.com/us/podcast/show/id1584274529")
+        self.assertEqual(feed.feed_url, "https://example.com/feed.xml")
+        fetch.assert_called_once_with("https://example.com/feed.xml")
 
 
 class TestDirectTranscriptUrls(unittest.TestCase):

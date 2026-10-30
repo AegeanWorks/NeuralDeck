@@ -7,10 +7,10 @@
 
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `30`
-- **Total Classes**: `62`
-- **Total Top-Level Functions**: `85`
-- **Total Class Methods**: `292`
-- **Total Source Lines**: `6563`
+- **Total Classes**: `64`
+- **Total Top-Level Functions**: `92`
+- **Total Class Methods**: `301`
+- **Total Source Lines**: `6840`
 
 ---
 
@@ -494,7 +494,7 @@
 ---
 
 ### [`tests/test_transcript_sources.py`](tests/test_transcript_sources.py)
-**Size**: `338` lines (`13941` bytes)
+**Size**: `467` lines (`20665` bytes)
 
 **Classes:**
 - `class _FakeTranscript`
@@ -526,6 +526,16 @@
   - Method `.test_feed_without_transcript_tags_is_reported()`
   - Method `.test_invalid_xml_is_reported()`
   - Method `.test_fetch_podcast_transcript_downloads_feed_and_cue_file()`
+- `class TestApplePodcasts`
+  - Method `.test_show_and_episode_urls_are_recognized()`
+  - Method `.test_resolve_show_url_uses_the_itunes_feed()`
+  - Method `.test_resolve_episode_url_reads_the_page_title()`
+  - Method `.test_apple_page_title_reads_open_graph_metadata()`
+  - Method `.test_apple_show_url_uses_the_newest_transcribed_episode()`
+  - Method `.test_apple_episode_url_matches_the_transcript_by_title()`
+  - Method `.test_apple_episode_without_a_transcript_is_reported()`
+  - Method `.test_apple_episode_without_a_title_is_reported()`
+  - Method `.test_fetch_podcast_feed_resolves_an_apple_show_url()`
 - `class TestDirectTranscriptUrls`
   - Method `.test_direct_vtt_url_is_parsed()`
   - Method `.test_rss_url_is_detected_from_content_type()`
@@ -590,13 +600,14 @@
 ### [`transcript_sources.py`](transcript_sources.py)
 > *Fetch card source transcripts from YouTube, podcast feeds and URLs.*
 
-**Size**: `532` lines (`20472` bytes)
+**Size**: `680` lines (`26008` bytes)
 
 **Classes:**
 - `class TranscriptError` - *A user-facing transcript failure that explains why and how to fix it.*
 - `class TranscriptResult`
 - `class PodcastTranscriptRef`
 - `class PodcastFeed`
+- `class ApplePodcastSource`
 
 **Functions:**
 - `def language_codes(language)` - *Map a UI language name to the ISO codes YouTube expects.*
@@ -604,6 +615,13 @@
 - `def _is_youtube_url(value)`
 - `def _fetch_url_bytes(url, max_bytes, timeout)`
 - `def _decode(data, charset)`
+- `def extract_apple_podcast_ids(value)` - *Return (collection_id, episode_id) from an Apple Podcasts URL.*
+- `def _fetch_json(url, max_bytes)`
+- `def _apple_page_title(url)` - *Read the episode title from Apple's Open Graph metadata.*
+- `def resolve_apple_podcast_url(url)` - *Resolve an Apple Podcasts show or episode URL to its RSS feed.*
+- `def _normalized_title(value)`
+- `def _find_episode_by_title(feed, title)`
+- `def _select_feed_episode(feed, language)`
 - `def _load_youtube_transcript_api()`
 - `def _youtube_error_message(video_id, exc)`
 - `def fetch_youtube_transcript(url_or_id, language, log_callback)` - *Download the best available caption track for a YouTube video.*
@@ -628,7 +646,7 @@
 ---
 
 ### [`ui.py`](ui.py)
-**Size**: `1170` lines (`53015` bytes)
+**Size**: `1170` lines (`53054` bytes)
 
 **Classes:**
 - `class TextWidgetHandler` - *Custom logging handler that writes to a Tkinter ScrolledText widget thread-safely.*

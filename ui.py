@@ -724,7 +724,7 @@ class AnkiGeneratorUI(ttk.Window):
         """Fetch a transcript from YouTube or a Podcasting 2.0 RSS feed."""
         url = simpledialog.askstring(
             "Import YouTube / Podcast",
-            "Paste a YouTube video URL, a podcast RSS feed URL,\n"
+            "Paste a YouTube video URL, a podcast RSS feed or Apple Podcasts URL,\n"
             "or a direct .vtt/.srt/.txt/.json transcript URL:",
             parent=self,
         )
@@ -753,7 +753,7 @@ class AnkiGeneratorUI(ttk.Window):
         """List a feed's transcribed episodes and fetch the chosen one."""
         url = simpledialog.askstring(
             "Browse Podcast Episodes",
-            "Paste the podcast RSS feed URL:",
+            "Paste a podcast RSS feed or Apple Podcasts show URL:",
             parent=self,
         )
         if not url or not url.strip():
