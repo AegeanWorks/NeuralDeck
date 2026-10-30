@@ -13,27 +13,6 @@
   },
   "checkpoints": [
     {
-      "task_id": "youtube-metadata-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'youtube-metadata-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793373624.5086818,
-      "timestamp_str": "2026-10-30 18:20:24",
-      "agent": "opencode:neuraldeck-media"
-    },
-    {
-      "task_id": "reforge:run-2",
-      "phase": "reforge run",
-      "phase_num": 3,
-      "description": "run started (start=2, step=1, stop=4)",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793373650.5123246,
-      "timestamp_str": "2026-10-30 18:20:50",
-      "agent": "opencode"
-    },
-    {
       "task_id": "reforge:run-2",
       "phase": "reforge stage 1",
       "phase_num": 3,
@@ -255,6 +234,28 @@
       "timestamp": 1793376551.4810493,
       "timestamp_str": "2026-10-30 19:09:11",
       "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "reforge:run-3",
+      "phase": "reforge run",
+      "phase_num": 3,
+      "description": "run started (start=2, step=1, stop=2)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793376666.1550164,
+      "timestamp_str": "2026-10-30 19:11:06",
+      "agent": "opencode"
+    },
+    {
+      "task_id": "reforge:run-3",
+      "phase": "reforge stage 1",
+      "phase_num": 3,
+      "description": "Reforge stage 1: window 2, 2 commit(s), 13 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired",
+      "files_affected": [],
+      "status": "completed",
+      "timestamp": 1793376679.924637,
+      "timestamp_str": "2026-10-30 19:11:19",
+      "agent": "opencode"
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "schema": 2,
-  "next_run_id": 3,
+  "next_run_id": 4,
   "active_run": null,
-  "last_run": "run-2",
+  "last_run": "run-3",
   "runs": [
     {
       "id": "run-1",
@@ -3823,48 +3823,157 @@
           "timestamp": "2026-10-30T18:23:13"
         }
       ]
+    },
+    {
+      "id": "run-3",
+      "start": 2,
+      "step": 1,
+      "stop": 2,
+      "stage": 1,
+      "window": 2,
+      "audited_commits": [
+        "bae505e96bd2ac0673792c3200934090f59a6910",
+        "413b4a545572594751b88fb816777aeb8d74ed7c"
+      ],
+      "status": "completed",
+      "created": "2026-10-30T19:11:06",
+      "updated": "2026-10-30T19:11:19",
+      "last_audit": {
+        "run": "run-3",
+        "stage": 1,
+        "window": 2,
+        "commits": [
+          "bae505e96bd2ac0673792c3200934090f59a6910",
+          "413b4a545572594751b88fb816777aeb8d74ed7c"
+        ],
+        "new_commits": [
+          "bae505e96bd2ac0673792c3200934090f59a6910",
+          "413b4a545572594751b88fb816777aeb8d74ed7c"
+        ],
+        "prior_commits": [],
+        "findings": [],
+        "repairs": [],
+        "counts": {},
+        "reviewed": 13,
+        "review": {
+          "status": "unreviewed",
+          "rejected": [],
+          "files": [
+            ".aikit/codebase_map.md",
+            ".aikit/decisions.md",
+            "README.md",
+            "audio_transcription.py",
+            "document_processor.py",
+            "requirements.txt",
+            "tests/test_audio_transcription.py",
+            "tests/test_document_processor.py",
+            "tests/test_document_processor_extra.py",
+            "tests/test_pipeline.py",
+            "tests/test_transcript_sources.py",
+            "transcript_sources.py",
+            "ui.py"
+          ],
+          "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-3-1-bae505e96bd2.md",
+          "redacted": 0,
+          "reason": "awaiting the reviewer's findings",
+          "findings": []
+        },
+        "skipped": [],
+        "tests": {},
+        "gates": {},
+        "timestamp": "2026-10-30T19:11:19"
+      },
+      "history": [
+        {
+          "run": "run-3",
+          "stage": 1,
+          "window": 2,
+          "commits": [
+            "bae505e96bd2ac0673792c3200934090f59a6910",
+            "413b4a545572594751b88fb816777aeb8d74ed7c"
+          ],
+          "new_commits": [
+            "bae505e96bd2ac0673792c3200934090f59a6910",
+            "413b4a545572594751b88fb816777aeb8d74ed7c"
+          ],
+          "prior_commits": [],
+          "findings": [],
+          "repairs": [],
+          "counts": {},
+          "reviewed": 13,
+          "review": {
+            "status": "unreviewed",
+            "rejected": [],
+            "files": [
+              ".aikit/codebase_map.md",
+              ".aikit/decisions.md",
+              "README.md",
+              "audio_transcription.py",
+              "document_processor.py",
+              "requirements.txt",
+              "tests/test_audio_transcription.py",
+              "tests/test_document_processor.py",
+              "tests/test_document_processor_extra.py",
+              "tests/test_pipeline.py",
+              "tests/test_transcript_sources.py",
+              "transcript_sources.py",
+              "ui.py"
+            ],
+            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-3-1-bae505e96bd2.md",
+            "redacted": 0,
+            "reason": "awaiting the reviewer's findings",
+            "findings": []
+          },
+          "skipped": [],
+          "tests": {},
+          "gates": {},
+          "timestamp": "2026-10-30T19:11:19"
+        }
+      ]
     }
   ],
-  "stage": 3,
-  "window": 4,
+  "stage": 1,
+  "window": 2,
   "audited_commits": [
-    "9cc3e964edf7e5b86d10a6e356004a6aca6c5a46",
-    "f4a84ecf569505ebf3f10924b621612254c1f702",
-    "83124d28509ece52d901429d58bc2f54f20a5511",
-    "1057d726f7720d68670c2af2ce34a73e446a3ce7"
+    "bae505e96bd2ac0673792c3200934090f59a6910",
+    "413b4a545572594751b88fb816777aeb8d74ed7c"
   ],
   "last_audit": {
-    "run": "run-2",
-    "stage": 3,
-    "window": 4,
+    "run": "run-3",
+    "stage": 1,
+    "window": 2,
     "commits": [
-      "1057d726f7720d68670c2af2ce34a73e446a3ce7",
-      "9cc3e964edf7e5b86d10a6e356004a6aca6c5a46",
-      "f4a84ecf569505ebf3f10924b621612254c1f702",
-      "83124d28509ece52d901429d58bc2f54f20a5511"
+      "bae505e96bd2ac0673792c3200934090f59a6910",
+      "413b4a545572594751b88fb816777aeb8d74ed7c"
     ],
     "new_commits": [
-      "1057d726f7720d68670c2af2ce34a73e446a3ce7"
+      "bae505e96bd2ac0673792c3200934090f59a6910",
+      "413b4a545572594751b88fb816777aeb8d74ed7c"
     ],
-    "prior_commits": [
-      "9cc3e964edf7e5b86d10a6e356004a6aca6c5a46",
-      "f4a84ecf569505ebf3f10924b621612254c1f702",
-      "83124d28509ece52d901429d58bc2f54f20a5511"
-    ],
+    "prior_commits": [],
     "findings": [],
     "repairs": [],
     "counts": {},
-    "reviewed": 4,
+    "reviewed": 13,
     "review": {
       "status": "unreviewed",
       "rejected": [],
       "files": [
         ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
         "README.md",
+        "audio_transcription.py",
+        "document_processor.py",
+        "requirements.txt",
+        "tests/test_audio_transcription.py",
+        "tests/test_document_processor.py",
+        "tests/test_document_processor_extra.py",
+        "tests/test_pipeline.py",
         "tests/test_transcript_sources.py",
-        "transcript_sources.py"
+        "transcript_sources.py",
+        "ui.py"
       ],
-      "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-2-3-1057d726f772.md",
+      "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-3-1-bae505e96bd2.md",
       "redacted": 0,
       "reason": "awaiting the reviewer's findings",
       "findings": []
@@ -3872,65 +3981,26 @@
     "skipped": [],
     "tests": {},
     "gates": {},
-    "timestamp": "2026-10-30T18:23:13"
+    "timestamp": "2026-10-30T19:11:19"
   },
   "history": [
     {
-      "run": "run-2",
+      "run": "run-3",
       "stage": 1,
       "window": 2,
       "commits": [
-        "9cc3e964edf7e5b86d10a6e356004a6aca6c5a46",
-        "f4a84ecf569505ebf3f10924b621612254c1f702"
+        "bae505e96bd2ac0673792c3200934090f59a6910",
+        "413b4a545572594751b88fb816777aeb8d74ed7c"
       ],
       "new_commits": [
-        "9cc3e964edf7e5b86d10a6e356004a6aca6c5a46",
-        "f4a84ecf569505ebf3f10924b621612254c1f702"
+        "bae505e96bd2ac0673792c3200934090f59a6910",
+        "413b4a545572594751b88fb816777aeb8d74ed7c"
       ],
       "prior_commits": [],
       "findings": [],
       "repairs": [],
       "counts": {},
-      "reviewed": 4,
-      "review": {
-        "status": "unreviewed",
-        "rejected": [],
-        "files": [
-          ".aikit/codebase_map.md",
-          "README.md",
-          "tests/test_transcript_sources.py",
-          "transcript_sources.py"
-        ],
-        "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-2-1-9cc3e964edf7.md",
-        "redacted": 0,
-        "reason": "awaiting the reviewer's findings",
-        "findings": []
-      },
-      "skipped": [],
-      "tests": {},
-      "gates": {},
-      "timestamp": "2026-10-30T18:20:57"
-    },
-    {
-      "run": "run-2",
-      "stage": 2,
-      "window": 3,
-      "commits": [
-        "9cc3e964edf7e5b86d10a6e356004a6aca6c5a46",
-        "f4a84ecf569505ebf3f10924b621612254c1f702",
-        "83124d28509ece52d901429d58bc2f54f20a5511"
-      ],
-      "new_commits": [
-        "83124d28509ece52d901429d58bc2f54f20a5511"
-      ],
-      "prior_commits": [
-        "9cc3e964edf7e5b86d10a6e356004a6aca6c5a46",
-        "f4a84ecf569505ebf3f10924b621612254c1f702"
-      ],
-      "findings": [],
-      "repairs": [],
-      "counts": {},
-      "reviewed": 6,
+      "reviewed": 13,
       "review": {
         "status": "unreviewed",
         "rejected": [],
@@ -3938,11 +4008,18 @@
           ".aikit/codebase_map.md",
           ".aikit/decisions.md",
           "README.md",
+          "audio_transcription.py",
+          "document_processor.py",
+          "requirements.txt",
+          "tests/test_audio_transcription.py",
+          "tests/test_document_processor.py",
+          "tests/test_document_processor_extra.py",
+          "tests/test_pipeline.py",
           "tests/test_transcript_sources.py",
           "transcript_sources.py",
           "ui.py"
         ],
-        "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-2-2-83124d28509e.md",
+        "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-3-1-bae505e96bd2.md",
         "redacted": 0,
         "reason": "awaiting the reviewer's findings",
         "findings": []
@@ -3950,48 +4027,7 @@
       "skipped": [],
       "tests": {},
       "gates": {},
-      "timestamp": "2026-10-30T18:21:15"
-    },
-    {
-      "run": "run-2",
-      "stage": 3,
-      "window": 4,
-      "commits": [
-        "1057d726f7720d68670c2af2ce34a73e446a3ce7",
-        "9cc3e964edf7e5b86d10a6e356004a6aca6c5a46",
-        "f4a84ecf569505ebf3f10924b621612254c1f702",
-        "83124d28509ece52d901429d58bc2f54f20a5511"
-      ],
-      "new_commits": [
-        "1057d726f7720d68670c2af2ce34a73e446a3ce7"
-      ],
-      "prior_commits": [
-        "9cc3e964edf7e5b86d10a6e356004a6aca6c5a46",
-        "f4a84ecf569505ebf3f10924b621612254c1f702",
-        "83124d28509ece52d901429d58bc2f54f20a5511"
-      ],
-      "findings": [],
-      "repairs": [],
-      "counts": {},
-      "reviewed": 4,
-      "review": {
-        "status": "unreviewed",
-        "rejected": [],
-        "files": [
-          ".aikit/codebase_map.md",
-          "README.md",
-          "tests/test_transcript_sources.py",
-          "transcript_sources.py"
-        ],
-        "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-2-3-1057d726f772.md",
-        "redacted": 0,
-        "reason": "awaiting the reviewer's findings",
-        "findings": []
-      },
-      "skipped": [],
-      "tests": {},
-      "gates": {},
-      "timestamp": "2026-10-30T18:23:13"
+      "timestamp": "2026-10-30T19:11:19"
     }
   ]
 }
