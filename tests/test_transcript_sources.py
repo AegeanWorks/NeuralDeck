@@ -9,8 +9,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import transcript_sources
 from transcript_sources import (
     ApplePodcastSource,
-    PodcastFeed,
-    PodcastTranscriptRef,
     TranscriptError,
     extract_apple_podcast_ids,
     extract_youtube_video_id,
@@ -359,6 +357,15 @@ class TestApplePodcasts(unittest.TestCase):
              patch.object(transcript_sources, "fetch_podcast_transcript_for_ref", return_value=expected) as fetch:
             fetch_transcript_from_url("https://podcasts.apple.com/us/podcast/show/id1584274529?i=1000797833454")
         self.assertEqual(fetch.call_args.args[0].episode_title, "Episode 1: Sleep")
+
+    def test_short_episode_numbers_do_not_match_by_prefix(self):
+        feed = parse_podcast_feed_data(FEED)
+        self.assertIsNone(transcript_sources._find_episode_by_title(feed, "Episode 1"))
+        self.assertIsNone(transcript_sources._find_episode_by_title(feed, "Episode"))
+        self.assertEqual(
+            transcript_sources._find_episode_by_title(feed, "Episode 1: Sleep").episode_title,
+            "Episode 1: Sleep",
+        )
 
     def test_apple_episode_without_a_transcript_is_reported(self):
         source = ApplePodcastSource(

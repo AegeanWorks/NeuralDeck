@@ -1,53 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "apple-podcast-v1",
+    "task_id": "media-review-fixes-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793372322.763537,
+    "updated_at": 1793373358.0315256,
     "owner": "opencode:neuraldeck-media",
     "started_by": "opencode:neuraldeck-media",
     "continuations": [],
-    "completed_at": 1793372327.8024566
+    "completed_at": 1793373358.3253062
   },
   "checkpoints": [
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 17",
-      "phase_num": 3,
-      "description": "Reforge stage 17: window 51, 3 commit(s), 12 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793293621.5881867,
-      "timestamp_str": "2026-10-29 20:07:01",
-      "agent": "opencode"
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 18",
-      "phase_num": 3,
-      "description": "Reforge stage 18: window 54, 3 commit(s), 6 file(s) reviewed (unreviewed), 5 finding(s), 0 repaired (regression=4, reliability=1)",
-      "files_affected": [
-        "document_processor.py",
-        "ui.py"
-      ],
-      "status": "in_progress",
-      "timestamp": 1793293676.6778276,
-      "timestamp_str": "2026-10-29 20:07:56",
-      "agent": "opencode"
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 19",
-      "phase_num": 3,
-      "description": "Reforge stage 19: window 57, 3 commit(s), 2 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793293745.6325848,
-      "timestamp_str": "2026-10-29 20:09:05",
-      "agent": "opencode"
-    },
     {
       "task_id": "reforge:run-1",
       "phase": "reforge stage 20",
@@ -264,6 +228,44 @@
       "status": "completed",
       "timestamp": 1793372327.802458,
       "timestamp_str": "2026-10-30 17:58:47",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "media-review-fixes-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Harden Apple episode title matching against short-prefix false positives and remove unused test imports found by the post-commit review.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793373293.4476802,
+      "timestamp_str": "2026-10-30 18:14:53",
+      "agent": "opencode:neuraldeck-media",
+      "impact_assessment": {
+        "why": "Substring title matching could select Episode 10 when Apple names Episode 1, importing the wrong transcript.",
+        "benefits": "Exact matches stay first; fuzzy matches require a long, high-overlap title, so short episode numbers cannot collide.",
+        "risks": "contract: private matcher only; dependency: none; concurrency: unchanged; state: none.",
+        "mitigation": "Add a regression test for the Episode 1/Episode 10 collision and run the full suite."
+      }
+    },
+    {
+      "task_id": "media-review-fixes-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[milestone 1/1] Apple title matching hardened: exact matches first, fuzzy prefixes require >=20 chars and >=80% length overlap, so Episode 1 cannot select Episode 10. Unused test imports removed. Tests 196 pass + 1 skip; checklists: passed (test, hygiene, guidelines, secrets).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793373358.0315256,
+      "timestamp_str": "2026-10-30 18:15:58",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "media-review-fixes-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'media-review-fixes-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793373358.3253074,
+      "timestamp_str": "2026-10-30 18:15:58",
       "agent": "opencode:neuraldeck-media"
     }
   ]

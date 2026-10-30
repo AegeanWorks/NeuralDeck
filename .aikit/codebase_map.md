@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `30`
 - **Total Classes**: `64`
-- **Total Top-Level Functions**: `92`
-- **Total Class Methods**: `301`
-- **Total Source Lines**: `6840`
+- **Total Top-Level Functions**: `93`
+- **Total Class Methods**: `302`
+- **Total Source Lines**: `6856`
 
 ---
 
@@ -494,7 +494,7 @@
 ---
 
 ### [`tests/test_transcript_sources.py`](tests/test_transcript_sources.py)
-**Size**: `467` lines (`20665` bytes)
+**Size**: `474` lines (`21070` bytes)
 
 **Classes:**
 - `class _FakeTranscript`
@@ -533,6 +533,7 @@
   - Method `.test_apple_page_title_reads_open_graph_metadata()`
   - Method `.test_apple_show_url_uses_the_newest_transcribed_episode()`
   - Method `.test_apple_episode_url_matches_the_transcript_by_title()`
+  - Method `.test_short_episode_numbers_do_not_match_by_prefix()`
   - Method `.test_apple_episode_without_a_transcript_is_reported()`
   - Method `.test_apple_episode_without_a_title_is_reported()`
   - Method `.test_fetch_podcast_feed_resolves_an_apple_show_url()`
@@ -600,7 +601,7 @@
 ### [`transcript_sources.py`](transcript_sources.py)
 > *Fetch card source transcripts from YouTube, podcast feeds and URLs.*
 
-**Size**: `680` lines (`26008` bytes)
+**Size**: `689` lines (`26326` bytes)
 
 **Classes:**
 - `class TranscriptError` - *A user-facing transcript failure that explains why and how to fix it.*
@@ -620,6 +621,7 @@
 - `def _apple_page_title(url)` - *Read the episode title from Apple's Open Graph metadata.*
 - `def resolve_apple_podcast_url(url)` - *Resolve an Apple Podcasts show or episode URL to its RSS feed.*
 - `def _normalized_title(value)`
+- `def _titles_overlap(left, right)` - *Allow a long-title prefix, but never a short episode number.*
 - `def _find_episode_by_title(feed, title)`
 - `def _select_feed_episode(feed, language)`
 - `def _load_youtube_transcript_api()`

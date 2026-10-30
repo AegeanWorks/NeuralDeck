@@ -264,6 +264,16 @@ def _normalized_title(value):
     return re.sub(r"\W+", " ", html.unescape(value or "").casefold()).strip()
 
 
+def _titles_overlap(left, right):
+    """Allow a long-title prefix, but never a short episode number."""
+    if not left or not right:
+        return False
+    if left == right:
+        return True
+    shorter, longer = (left, right) if len(left) <= len(right) else (right, left)
+    return len(shorter) >= 20 and shorter in longer and len(shorter) / len(longer) >= 0.8
+
+
 def _find_episode_by_title(feed, title):
     wanted = _normalized_title(title)
     if not wanted:
@@ -272,8 +282,7 @@ def _find_episode_by_title(feed, title):
         if _normalized_title(ref.episode_title) == wanted:
             return ref
     for ref in feed.episodes:
-        candidate = _normalized_title(ref.episode_title)
-        if candidate and (wanted in candidate or candidate in wanted):
+        if _titles_overlap(wanted, _normalized_title(ref.episode_title)):
             return ref
     return None
 
