@@ -192,8 +192,8 @@ def extract_apple_podcast_ids(value):
     return match.group(1), episode_id
 
 
-def _fetch_json(url, max_bytes=1024 * 1024):
-    data, _, charset = _fetch_url_bytes(url, max_bytes=max_bytes)
+def _fetch_json(url, max_bytes=1024 * 1024, timeout=FETCH_TIMEOUT_SECONDS):
+    data, _, charset = _fetch_url_bytes(url, max_bytes=max_bytes, timeout=timeout)
     try:
         return json.loads(_decode(data, charset))
     except ValueError as exc:
@@ -210,7 +210,7 @@ def _youtube_metadata(video_id):
         {"url": f"https://www.youtube.com/watch?v={video_id}", "format": "json"}
     )
     try:
-        payload = _fetch_json(lookup_url, max_bytes=256 * 1024)
+        payload = _fetch_json(lookup_url, max_bytes=256 * 1024, timeout=5)
     except TranscriptError:
         return {}
     return payload if isinstance(payload, dict) else {}

@@ -1,97 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "youtube-metadata-v1",
+    "task_id": "media-review-fixes-v2",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793373624.2214687,
+    "updated_at": 1793373773.6072745,
     "owner": "opencode:neuraldeck-media",
     "started_by": "opencode:neuraldeck-media",
     "continuations": [],
-    "completed_at": 1793373624.50868
+    "completed_at": 1793373773.9779832
   },
   "checkpoints": [
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 23",
-      "phase_num": 3,
-      "description": "Reforge stage 23: window 69, 3 commit(s), 3 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793293963.5977929,
-      "timestamp_str": "2026-10-29 20:12:43",
-      "agent": "opencode"
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 24",
-      "phase_num": 3,
-      "description": "Reforge stage 24: window 72, 3 commit(s), 1 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired, 1 binary not analysed",
-      "files_affected": [
-        "banner.png"
-      ],
-      "status": "in_progress",
-      "timestamp": 1793294026.4455001,
-      "timestamp_str": "2026-10-29 20:13:46",
-      "agent": "opencode"
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 25",
-      "phase_num": 3,
-      "description": "Reforge stage 25: window 73, 1 commit(s), 2 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793294068.026145,
-      "timestamp_str": "2026-10-29 20:14:28",
-      "agent": "opencode"
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'reforge:run-1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793364011.4691596,
-      "timestamp_str": "2026-10-30 15:40:11",
-      "agent": "opencode:neuraldeck-media",
-      "continued_from": "opencode:reforge-followup"
-    },
-    {
-      "task_id": "media-import-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/5] Build transcript ingestion: parse VTT/SRT/Podcasting 2.0 JSON/HTML/plain text, extract YouTube captions, discover Podcasting 2.0 transcripts from RSS feeds, and fetch direct transcript URLs; cover with mocked-network unit tests.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793364019.3828027,
-      "timestamp_str": "2026-10-30 15:40:19",
-      "agent": "opencode:neuraldeck-media",
-      "impact_assessment": {
-        "why": "NeuralDeck can only build cards from local documents; users want podcast and YouTube sources turned into cards without manual copy-paste.",
-        "benefits": "Adds podcast RSS and YouTube URL sources plus transcript-file support, reusing the existing chunking/card pipeline and keeping processing local.",
-        "risks": "contract: new public media module consumed by UI and document_processor; dependency: youtube-transcript-api/defusedxml, optional faster-whisper; concurrency: UI import runs on a worker thread; state: imported transcript held in memory only, no new persisted fields.",
-        "mitigation": "Pure parsers separated from network fetches, lazy optional imports, bounded downloads/timeouts, mocked-network tests, and UI updates marshalled with after()."
-      }
-    },
-    {
-      "task_id": "media-import-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Re-plan: deliver media transcript import as one atomic change (transcript parsers, YouTube/podcast fetchers, optional local Whisper, UI import flow, docs) because intermediate commits cannot pass the README tree and codebase-map gate separately.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793364832.509858,
-      "timestamp_str": "2026-10-30 15:53:52",
-      "agent": "opencode:neuraldeck-media",
-      "impact_assessment": {
-        "why": "The original five milestones share one public surface and one documentation tree; splitting them would leave intermediate commits with stale maps and incomplete README trees.",
-        "benefits": "One reviewable change with a single test/gate run and an exact rollback point.",
-        "risks": "contract: media API and UI run_process signature change together; dependency: new runtime packages and optional Whisper; concurrency: URL import uses a worker thread; state: no persisted transcript state.",
-        "mitigation": "Keep the pure parsers separate, mock all network calls in tests, lazy-load optional audio support, and run the project check on the complete tree."
-      }
-    },
     {
       "task_id": "media-import-v1",
       "phase": "phase 4",
@@ -263,6 +183,77 @@
       "status": "completed",
       "timestamp": 1793373624.5086818,
       "timestamp_str": "2026-10-30 18:20:24",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "reforge:run-2",
+      "phase": "reforge run",
+      "phase_num": 3,
+      "description": "run started (start=2, step=1, stop=4)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793373650.5123246,
+      "timestamp_str": "2026-10-30 18:20:50",
+      "agent": "opencode"
+    },
+    {
+      "task_id": "reforge:run-2",
+      "phase": "reforge stage 1",
+      "phase_num": 3,
+      "description": "Reforge stage 1: window 2, 2 commit(s), 4 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793373657.1529958,
+      "timestamp_str": "2026-10-30 18:20:57",
+      "agent": "opencode"
+    },
+    {
+      "task_id": "reforge:run-2",
+      "phase": "reforge stage 2",
+      "phase_num": 3,
+      "description": "Reforge stage 2: window 3, 1 commit(s), 6 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793373675.207857,
+      "timestamp_str": "2026-10-30 18:21:15",
+      "agent": "opencode"
+    },
+    {
+      "task_id": "media-review-fixes-v2",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Cap the YouTube oEmbed metadata lookup at 5 seconds so a slow metadata endpoint cannot add the full 20-second network timeout to a caption import.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793373711.5489604,
+      "timestamp_str": "2026-10-30 18:21:51",
+      "agent": "opencode:neuraldeck-media",
+      "impact_assessment": {
+        "why": "The oEmbed title lookup is optional, but currently inherits the generic 20-second transcript timeout.",
+        "benefits": "Caption imports stay responsive when YouTube's metadata endpoint is slow or blocked; the id fallback remains.",
+        "risks": "contract: private helper signature only; dependency: none; concurrency: unchanged; state: none.",
+        "mitigation": "Thread the timeout through the existing JSON helper, use 5 seconds only for oEmbed, and assert the value in a test."
+      }
+    },
+    {
+      "task_id": "media-review-fixes-v2",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[milestone 1/1] YouTube oEmbed metadata lookup bounded to 256 KB and a 5-second timeout instead of inheriting the 20-second transcript timeout; regression test added. Tests 199 pass + 1 skip; checklists: passed (test, hygiene, guidelines, secrets).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793373773.6072745,
+      "timestamp_str": "2026-10-30 18:22:53",
+      "agent": "opencode:neuraldeck-media"
+    },
+    {
+      "task_id": "media-review-fixes-v2",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'media-review-fixes-v2' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793373773.9779859,
+      "timestamp_str": "2026-10-30 18:22:53",
       "agent": "opencode:neuraldeck-media"
     }
   ]

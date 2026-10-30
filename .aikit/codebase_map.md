@@ -9,8 +9,8 @@
 - **Total Python Modules**: `30`
 - **Total Classes**: `64`
 - **Total Top-Level Functions**: `94`
-- **Total Class Methods**: `304`
-- **Total Source Lines**: `6894`
+- **Total Class Methods**: `305`
+- **Total Source Lines**: `6900`
 
 ---
 
@@ -494,7 +494,7 @@
 ---
 
 ### [`tests/test_transcript_sources.py`](tests/test_transcript_sources.py)
-**Size**: `493` lines (`22158` bytes)
+**Size**: `499` lines (`22504` bytes)
 
 **Classes:**
 - `class _FakeTranscript`
@@ -511,6 +511,7 @@
 - `class TestYouTubeTranscript`
   - Method `.test_fetches_the_requested_track_and_uses_oembed_metadata()`
   - Method `.test_oembed_failure_is_ignored()`
+  - Method `.test_oembed_uses_a_short_bounded_request()`
   - Method `.test_youtube_metadata_failure_falls_back_to_the_video_id()`
   - Method `.test_falls_back_to_any_available_track()`
   - Method `.test_disabled_captions_get_an_actionable_error()`
@@ -603,7 +604,7 @@
 ### [`transcript_sources.py`](transcript_sources.py)
 > *Fetch card source transcripts from YouTube, podcast feeds and URLs.*
 
-**Size**: `708` lines (`27068` bytes)
+**Size**: `708` lines (`27127` bytes)
 
 **Classes:**
 - `class TranscriptError` - *A user-facing transcript failure that explains why and how to fix it.*
@@ -619,7 +620,7 @@
 - `def _fetch_url_bytes(url, max_bytes, timeout)`
 - `def _decode(data, charset)`
 - `def extract_apple_podcast_ids(value)` - *Return (collection_id, episode_id) from an Apple Podcasts URL.*
-- `def _fetch_json(url, max_bytes)`
+- `def _fetch_json(url, max_bytes, timeout)`
 - `def _youtube_metadata(video_id)` - *Read the public title and channel through YouTube's oEmbed endpoint.*
 - `def _apple_page_title(url)` - *Read the episode title from Apple's Open Graph metadata.*
 - `def resolve_apple_podcast_url(url)` - *Resolve an Apple Podcasts show or episode URL to its RSS feed.*

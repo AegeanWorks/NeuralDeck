@@ -141,6 +141,12 @@ class TestYouTubeTranscript(unittest.TestCase):
         with patch.object(transcript_sources, "_fetch_json", side_effect=TranscriptError("offline")):
             self.assertEqual(transcript_sources._youtube_metadata("dQw4w9WgXcQ"), {})
 
+    def test_oembed_uses_a_short_bounded_request(self):
+        with patch.object(transcript_sources, "_fetch_json", return_value={}) as fetch:
+            transcript_sources._youtube_metadata("dQw4w9WgXcQ")
+        self.assertEqual(fetch.call_args.kwargs["timeout"], 5)
+        self.assertEqual(fetch.call_args.kwargs["max_bytes"], 256 * 1024)
+
     def test_youtube_metadata_failure_falls_back_to_the_video_id(self):
         fake_list = _FakeTranscriptList(transcript=_FakeTranscript("Hello from captions."))
         with patch.object(
