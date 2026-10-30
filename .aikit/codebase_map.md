@@ -9,8 +9,8 @@
 - **Total Python Modules**: `32`
 - **Total Classes**: `67`
 - **Total Top-Level Functions**: `113`
-- **Total Class Methods**: `330`
-- **Total Source Lines**: `7591`
+- **Total Class Methods**: `331`
+- **Total Source Lines**: `7620`
 
 ---
 
@@ -503,7 +503,7 @@
 ---
 
 ### [`tests/test_transcript_sources.py`](tests/test_transcript_sources.py)
-**Size**: `628` lines (`28707` bytes)
+**Size**: `649` lines (`29824` bytes)
 
 **Classes:**
 - `class _FakeTranscript`
@@ -561,6 +561,7 @@
   - Method `.test_audio_url_is_downloaded_and_transcribed()`
   - Method `.test_missing_media_transcription_package_is_reported()`
   - Method `.test_media_download_limit_is_enforced()`
+  - Method `.test_truncated_media_download_cleans_the_temp_file()`
   - Method `.test_media_url_returning_html_is_rejected()`
   - Method `.test_audio_content_type_without_a_media_extension_is_rejected()`
   - Method `.test_empty_url_is_rejected()`
@@ -637,7 +638,7 @@
 ### [`transcript_sources.py`](transcript_sources.py)
 > *Fetch card source transcripts from YouTube, podcast feeds and URLs.*
 
-**Size**: `917` lines (`35266` bytes)
+**Size**: `925` lines (`35649` bytes)
 
 **Classes:**
 - `class TranscriptError` - *A user-facing transcript failure that explains why and how to fix it.*

@@ -549,7 +549,7 @@ python -m pytest tests --cov=. --cov-report=html
 | Failure Isolation | `test_failure_isolation.py` | ✓ |
 | Deterministic Mode | `test_deterministic.py` | ✓ |
 
-**Total: 221 tests** (platform-specific tests are skipped when their prerequisite is absent)
+**Total: 222 tests** (platform-specific tests are skipped when their prerequisite is absent)
 
 ---
 

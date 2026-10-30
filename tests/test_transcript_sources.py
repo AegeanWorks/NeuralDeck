@@ -572,6 +572,27 @@ class TestDirectTranscriptUrls(unittest.TestCase):
                 transcript_sources._download_media_to_temp("https://example.com/video.mp4", max_bytes=4)
         self.assertIn("larger than", str(raised.exception))
 
+    def test_truncated_media_download_cleans_the_temp_file(self):
+        handle = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+        handle.close()
+        self.addCleanup(lambda: os.path.exists(handle.name) and os.remove(handle.name))
+        fd = os.open(handle.name, os.O_WRONLY | os.O_CREAT)
+
+        headers = MagicMock()
+        headers.get.return_value = "video/mp4"
+        response = MagicMock()
+        response.read.side_effect = transcript_sources.http.client.IncompleteRead(b"123")
+        response.headers = headers
+        response.__enter__.return_value = response
+        response.__exit__.return_value = None
+        with patch.object(
+            transcript_sources.tempfile, "mkstemp", return_value=(fd, handle.name)
+        ), patch.object(transcript_sources.urllib.request, "urlopen", return_value=response):
+            with self.assertRaises(TranscriptError) as raised:
+                transcript_sources._download_media_to_temp("https://example.com/video.mp4")
+        self.assertIn("ended before", str(raised.exception))
+        self.assertFalse(os.path.exists(handle.name))
+
     def test_media_url_returning_html_is_rejected(self):
         headers = MagicMock()
         headers.get.return_value = "text/html"

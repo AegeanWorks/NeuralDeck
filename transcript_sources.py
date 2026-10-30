@@ -6,6 +6,7 @@ through the Podcasting 2.0 ``<podcast:transcript>`` tag.
 """
 
 import html
+import http.client
 import json
 import os
 import re
@@ -729,6 +730,13 @@ def _download_media_to_temp(url, log_callback=None, max_bytes=MAX_MEDIA_BYTES):
             f"The media URL returned HTTP {exc.code}.\n"
             "Why: the link is private, expired or blocked for this client.\n"
             "Fix: download the file locally and select it."
+        ) from exc
+    except http.client.IncompleteRead as exc:
+        _remove_temp(temp_path)
+        raise TranscriptError(
+            "The media download ended before the file was complete.\n"
+            "Why: the connection dropped or the server truncated the response.\n"
+            "Fix: retry the download, or download the file locally and select it."
         ) from exc
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         _remove_temp(temp_path)
