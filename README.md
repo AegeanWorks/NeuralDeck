@@ -701,3 +701,11 @@ Contributions are welcome. Check existing issues, include reproduction steps and
 ## 📜 License
 
 Free for personal use under the Aegean License 1.1 (AL-1.1); see [LICENSE](LICENSE). Any commercial use needs the Aegean Commercial License 1.0 (ACL-1.0); see [COMMERCIAL.md](COMMERCIAL.md).
+
+<!-- aegean:screenshots:start -->
+## Screenshots
+
+<a href="https://github.com/AegeanWorks/NeuralDeck/commit/de99d53"><img src="assets/screenshots/2026-11-03-generator.png" alt="NeuralDeck generator at 2026-11-03"></a>
+
+*commit `de99d53` · 2026-11-03 · window 1216x839 · Generator tab via PrintWindow; Settings resisted scripted clicks (ADR-010)*
+<!-- aegean:screenshots:end -->

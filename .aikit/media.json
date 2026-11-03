@@ -41,6 +41,26 @@
       }
     }
   },
-  "screenshots": [],
+  "screenshots": [
+    {
+      "path": "assets/screenshots/2026-11-03-generator.png",
+      "alt": "NeuralDeck generator at 2026-11-03",
+      "caption": "Generator tab from python main.py: review panel, input configuration, decks, Anki log. Settings tab resisted scripted clicks; legacy root shots stay as history.",
+      "commit": "de99d5356515a84ee7c5f9c30fa97d017859a584",
+      "taken_at": "2026-11-03",
+      "viewport": "1216x839",
+      "width": 1216,
+      "height": 839,
+      "status": "approved",
+      "review": {
+        "status": "approved",
+        "reviewer": "agent:kilo",
+        "method": "vision",
+        "notes": "Real PrintWindow capture of the live app: all panels, English default, Anki-unreachable log honestly shown. Matches the legacy layout at HEAD.",
+        "score": 92,
+        "reviewed_at": "2026-11-03"
+      }
+    }
+  ],
   "model": "community/scriptsnsenses-sys/flux-2-dev-free"
 }

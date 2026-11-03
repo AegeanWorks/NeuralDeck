@@ -75,6 +75,13 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Decision**: Replace the pinned `PyPDF2` dependency with `pypdf==6.21.4`, import it as `pypdf`, and update every test patch target and documentation mention. The `extract_text_from_pdf` and `extract_text_from_pdf_bytes` contracts do not change.
 - **Consequences**: The deprecation warning disappears and the PDF path stays on a maintained library. A caller that imports `document_processor.PyPDF2` directly must switch to `document_processor.pypdf`; no shipped code did.
 
+### ADR-010: Generator keeper via PrintWindow; Settings tab resisted scripted clicks
+- **Date**: 2026-11-03
+- **Status**: Accepted
+- **Context**: No registered screenshots existed; two legacy root captures were unrecorded. Fullscreen grabs framed the IDE because the Tk window never takes focus from a headless launcher.
+- **Decision**: Register `2026-11-03-generator.png` (`python main.py`, PrintWindow on `NeuralDeck`, 1216x839, commit `de99d53`) in `.aikit/media.json` and the README `aegean:screenshots` block. Two scripted Settings-tab clicks missed (coordinates hit the IDE); the Generator tab covers review, input, decks and the Anki log, so coverage stands without it. Legacy root shots stay as history.
+- **Consequences**: README proves the current Generator. Reproduce with the launch plus PrintWindow helper above.
+
 ## Licensing migration (agpl-final)
 
 - New versions use the Aegean License 1.1 (AL-1.1); versions up to and including `agpl-final` remain under GNU AGPL-3.0.
