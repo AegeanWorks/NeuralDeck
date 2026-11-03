@@ -901,7 +901,7 @@ def fetch_transcript_from_url(url, language="English", log_callback=None):
     if content_type.startswith("audio/") or content_type.startswith("video/"):
         raise TranscriptError(
             "The URL points to audio or video, not a text transcript.\n"
-            "Why: NeuralDeck does not download media from the web.\n"
+            "Why: the URL does not end in a supported audio/video extension, so it was not handled as a direct media download (direct .mp3/.mp4/... URLs up to 300 MB are transcribed locally).\n"
             "Fix: download the episode and select the audio file for local transcription, "
             "or use the podcast RSS feed URL."
         )

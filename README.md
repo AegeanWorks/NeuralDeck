@@ -377,7 +377,7 @@ NeuralDeck/
 │   ├── __init__.py       # Bridge server (port 5005)
 │   └── manifest.json     # Add-on metadata
 ├── tests/                # Test suite
-└── config.json           # User settings
+└── config.example.json  # Tracked defaults; copy to config.json (personal, untracked)
 ```
 
 ### Detailed Module Documentation

@@ -10,7 +10,7 @@
 - **Total Classes**: `67`
 - **Total Top-Level Functions**: `113`
 - **Total Class Methods**: `331`
-- **Total Source Lines**: `7620`
+- **Total Source Lines**: `7621`
 
 ---
 
@@ -503,7 +503,7 @@
 ---
 
 ### [`tests/test_transcript_sources.py`](tests/test_transcript_sources.py)
-**Size**: `649` lines (`29824` bytes)
+**Size**: `650` lines (`29922` bytes)
 
 **Classes:**
 - `class _FakeTranscript`
@@ -638,7 +638,7 @@
 ### [`transcript_sources.py`](transcript_sources.py)
 > *Fetch card source transcripts from YouTube, podcast feeds and URLs.*
 
-**Size**: `925` lines (`35649` bytes)
+**Size**: `925` lines (`35774` bytes)
 
 **Classes:**
 - `class TranscriptError` - *A user-facing transcript failure that explains why and how to fix it.*

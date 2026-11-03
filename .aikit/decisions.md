@@ -82,6 +82,13 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Decision**: Register `2026-11-03-generator.png` (`python main.py`, PrintWindow on `NeuralDeck`, 1216x839, commit `de99d53`) in `.aikit/media.json` and the README `aegean:screenshots` block. Two scripted Settings-tab clicks missed (coordinates hit the IDE); the Generator tab covers review, input, decks and the Anki log, so coverage stands without it. Legacy root shots stay as history.
 - **Consequences**: README proves the current Generator. Reproduce with the launch plus PrintWindow helper above.
 
+### ADR-011: Correct extension-less media error and README config tree
+- **Date**: 2026-11-03
+- **Status**: Accepted
+- **Context**: Waves 0,10,20,30 audit (first 30 of 87 commits) found `fetch_transcript_from_url` claimed "NeuralDeck does not download media from the web" while extension URLs are downloaded up to 300 MB via `_media_transcript` (ADR-008), and the README tree listed untracked `config.json` instead of tracked `config.example.json` (ADR-003).
+- **Decision**: Reword the audio/video-branch Why to state the URL lacked a supported extension and note direct media URLs are transcribed locally; point the README tree at `config.example.json` with the copy-to-`config.json` note; add a regression assertion for the new wording.
+- **Consequences**: Extension-less media URLs get accurate guidance; onboarding matches the tracked defaults. Tests 221 pass + 1 skip.
+
 ## Licensing migration (agpl-final)
 
 - New versions use the Aegean License 1.1 (AL-1.1); versions up to and including `agpl-final` remain under GNU AGPL-3.0.

@@ -615,6 +615,7 @@ class TestDirectTranscriptUrls(unittest.TestCase):
             with self.assertRaises(TranscriptError) as raised:
                 fetch_transcript_from_url("https://example.com/download")
         self.assertIn("local transcription", str(raised.exception))
+        self.assertIn("does not end in a supported audio/video extension", str(raised.exception))
 
     def test_empty_url_is_rejected(self):
         with self.assertRaises(TranscriptError):
