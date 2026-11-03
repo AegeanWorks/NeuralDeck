@@ -3,31 +3,21 @@
   "active_task": {
     "task_id": "audit-waves-0-30",
     "last_phase": "in_progress",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1793722814.0586667,
     "owner": "kilo:audit-NeuralDeck",
     "started_by": "kilo:audit-NeuralDeck",
-    "continuations": []
+    "continuations": [
+      {
+        "agent": "unidentified",
+        "from": "kilo:audit-NeuralDeck",
+        "at": 1793722851.1274128
+      }
+    ],
+    "completed_at": 1793722851.127414
   },
   "checkpoints": [
-    {
-      "task_id": "web-pdf-import-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Add URL-based PDF extraction and readable website article extraction: download bounded bytes, detect PDF by content type/magic/path, reuse PyPDF2 page extraction, and extract main article text from HTML with lxml while dropping navigation, scripts and boilerplate.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793373941.0863924,
-      "timestamp_str": "2026-10-30 18:25:41",
-      "agent": "opencode:neuraldeck-media",
-      "impact_assessment": {
-        "why": "NeuralDeck already reads local PDFs, but users cannot paste a PDF link or a normal article URL; raw HTML passthrough includes navigation and cookie banners.",
-        "benefits": "Adds two common study sources without new runtime dependencies (PyPDF2 and lxml are already declared), reusing the existing card pipeline and preview.",
-        "risks": "contract: TranscriptResult gains pdf/web kinds; dependency: none; concurrency: URL fetch stays on the existing worker; state: downloaded bytes and extracted text stay in memory only.",
-        "mitigation": "Bound downloads, detect PDF before decoding, keep the extractor pure and fixture-tested, and fall back to the existing transcript parser when article extraction is thin."
-      }
-    },
     {
       "task_id": "web-pdf-import-v1",
       "phase": "phase 4",
@@ -262,6 +252,17 @@
       "timestamp": 1793722814.0586667,
       "timestamp_str": "2026-11-03 19:20:14",
       "agent": "kilo:audit-NeuralDeck"
+    },
+    {
+      "task_id": "audit-waves-0-30",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'audit-waves-0-30' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793722851.127415,
+      "timestamp_str": "2026-11-03 19:20:51",
+      "agent": "unidentified",
+      "continued_from": "kilo:audit-NeuralDeck"
     }
   ]
 }
