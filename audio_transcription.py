@@ -21,8 +21,15 @@ class AudioTranscriptionError(Exception):
 
 def is_audio_file(file_path):
     """Return True when the path has a supported audio/video extension."""
+    # The supported set covers audio plus video containers because both are
+    # transcribed locally with the same faster-whisper path.
     extension = os.path.splitext(os.fspath(file_path))[1].lower()
     return extension in SUPPORTED_AUDIO_EXTENSIONS
+
+
+def is_media_file(file_path):
+    """Alias for is_audio_file: audio and video share the local path."""
+    return is_audio_file(file_path)
 
 
 def is_video_file(file_path):

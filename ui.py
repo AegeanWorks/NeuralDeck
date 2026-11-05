@@ -11,6 +11,7 @@ import logging
 from audio_transcription import is_audio_file, is_video_file
 from document_processor import extract_text_from_document, generate_qa_pairs
 from transcript_sources import (
+    MAX_MEDIA_BYTES,
     fetch_podcast_feed,
     fetch_podcast_transcript_for_ref,
     fetch_transcript_from_url,
@@ -688,10 +689,10 @@ class AnkiGeneratorUI(ttk.Window):
 
     def select_file(self):
         filetypes = [
-            ("All Supported Sources", "*.pdf *.docx *.pptx *.txt *.srt *.vtt *.json *.mp3 *.m4a *.wav *.ogg *.flac *.wma *.aac *.mp4 *.m4v *.mkv *.webm *.mov *.avi *.mpeg *.mpg"),
+            ("All Supported Sources", "*.pdf *.docx *.pptx *.txt *.srt *.vtt *.json *.mp3 *.m4a *.wav *.ogg *.oga *.flac *.wma *.aac *.mp4 *.m4v *.mkv *.webm *.mov *.avi *.mpeg *.mpg"),
             ("Documents", "*.pdf *.docx *.pptx *.txt"),
             ("Transcripts", "*.srt *.vtt *.json *.txt"),
-            ("Podcast Audio / Video", "*.mp3 *.m4a *.wav *.ogg *.flac *.wma *.aac *.mp4 *.m4v *.mkv *.webm *.mov *.avi *.mpeg *.mpg"),
+            ("Podcast Audio / Video", "*.mp3 *.m4a *.wav *.ogg *.oga *.flac *.wma *.aac *.mp4 *.m4v *.mkv *.webm *.mov *.avi *.mpeg *.mpg"),
             ("PDF Files", "*.pdf"),
             ("Word Documents", "*.docx"),
             ("PowerPoint Presentations", "*.pptx"),
@@ -863,10 +864,21 @@ class AnkiGeneratorUI(ttk.Window):
             daemon=True,
         ).start()
 
+    def _check_local_source_size(self, file_path):
+        """Enforce the 50 MB document guard and the 300 MB local media cap."""
+        if is_audio_file(file_path):
+            size = os.path.getsize(file_path)
+            if size > MAX_MEDIA_BYTES:
+                raise Exception(
+                    f"Media file too large ({size / (1024 * 1024):.1f}MB). "
+                    f"Max allowed is {MAX_MEDIA_BYTES // (1024 * 1024)}MB."
+                )
+            return
+        ResourceGuard.check_file_size(file_path)
+
     def _preview_file_worker(self, file_path):
         try:
-            if not is_audio_file(file_path):
-                ResourceGuard.check_file_size(file_path)
+            self._check_local_source_size(file_path)
             text = extract_text_from_document(file_path, log_callback=self.logger.info)
         except Exception as exc:
             self.after(0, lambda error=exc: self._preview_failed(error))
@@ -884,6 +896,10 @@ class AnkiGeneratorUI(ttk.Window):
         self.logger.error(f"Preview extraction failed: {exc}")
         messagebox.showerror("Preview Failed", str(exc))
         self._set_preview_busy(False)
+        # Keep preview available when a file is still selected so the user
+        # can retry after fixing the cause (missing dependency, bad file).
+        if self.selected_file_path:
+            self.preview_btn.config(state="normal")
 
     def _set_preview_busy(self, busy):
         self.preview_loading = busy
@@ -938,6 +954,7 @@ class AnkiGeneratorUI(ttk.Window):
         
         self.generate_btn.config(state="disabled")
         self.stop_btn.config(state="normal")
+        self.select_btn.config(state="disabled")
         self.import_btn.config(state="disabled")
         self.browse_btn.config(state="disabled")
         self.preview_btn.config(state="disabled")
@@ -957,8 +974,7 @@ class AnkiGeneratorUI(ttk.Window):
                 text = preloaded_text
                 pipeline_stats.record_extraction_time(0.0)
             else:
-                if not is_audio_file(file_path):
-                    ResourceGuard.check_file_size(file_path)
+                self._check_local_source_size(file_path)
                 self.logger.info(f"Extracting text from {os.path.basename(file_path)}...")
                 text = extract_text_from_document(file_path, log_callback=self.logger.info)
                 pipeline_stats.record_extraction_time(time.time() - t_start)

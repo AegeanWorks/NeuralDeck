@@ -1,6 +1,8 @@
 """Fetch card source transcripts from YouTube, podcast feeds and URLs.
 
-Only text is downloaded; audio and video never leave the machine. YouTube
+Text sources are downloaded as text. Direct audio/video URLs (with a
+supported media extension) are downloaded to a temporary local file and
+transcribed on this machine; media bytes are never uploaded. YouTube
 captions use ``youtube-transcript-api`` and podcast shows expose transcripts
 through the Podcasting 2.0 ``<podcast:transcript>`` tag.
 """
@@ -24,10 +26,11 @@ from transcript_formats import parse_transcript
 from web_extraction import extract_article
 
 MAX_SOURCE_BYTES = 10 * 1024 * 1024
+MAX_PDF_BYTES = 50 * 1024 * 1024
 MAX_MEDIA_BYTES = 300 * 1024 * 1024
 MEDIA_CHUNK_BYTES = 1024 * 1024
 FETCH_TIMEOUT_SECONDS = 20
-USER_AGENT = "NeuralDeck/0.2 (+https://github.com/Aegean-E/NeuralDeck)"
+USER_AGENT = "NeuralDeck/0.2 (+https://github.com/AegeanWorks/NeuralDeck)"
 
 _YOUTUBE_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 _YOUTUBE_HOSTS = {"youtube.com", "m.youtube.com", "music.youtube.com", "youtube-nocookie.com"}
@@ -668,8 +671,13 @@ def _url_filename(url):
 
 
 def _looks_like_media_url(url):
+    # is_audio_file covers both audio and video container extensions.
     path = urllib.parse.urlparse(url).path
-    return is_audio_file(path) or is_video_file(path)
+    return is_audio_file(path)
+
+
+def _is_pdf_url(url):
+    return urllib.parse.urlparse(url).path.lower().endswith(".pdf")
 
 
 def _remove_temp(path):
@@ -887,7 +895,24 @@ def fetch_transcript_from_url(url, language="English", log_callback=None):
     if _looks_like_media_url(url):
         return _media_transcript(url, log_callback=log_callback)
 
-    data, content_type, charset = _fetch_url_bytes(url)
+    limit = MAX_PDF_BYTES if _is_pdf_url(url) else MAX_SOURCE_BYTES
+    try:
+        data, content_type, charset = _fetch_url_bytes(url, max_bytes=limit)
+    except TranscriptError as exc:
+        if "larger than" in str(exc) and limit == MAX_SOURCE_BYTES:
+            # A large extension-less PDF would otherwise be reported as an
+            # oversized transcript. Retry once with the PDF budget; only
+            # PDFs use the larger allowance.
+            try:
+                pdf_data, pdf_type, pdf_charset = _fetch_url_bytes(
+                    url, max_bytes=MAX_PDF_BYTES
+                )
+            except TranscriptError:
+                raise exc from None
+            if _looks_like_pdf(url, pdf_type, pdf_data):
+                return _pdf_transcript(pdf_data, url, log_callback=log_callback)
+            raise exc from None
+        raise
 
     if _looks_like_pdf(url, content_type, data):
         return _pdf_transcript(data, url, log_callback=log_callback)
@@ -899,12 +924,10 @@ def fetch_transcript_from_url(url, language="English", log_callback=None):
         return _transcript_from_ref(ref, log_callback=log_callback)
 
     if content_type.startswith("audio/") or content_type.startswith("video/"):
-        raise TranscriptError(
-            "The URL points to audio or video, not a text transcript.\n"
-            "Why: the URL does not end in a supported audio/video extension, so it was not handled as a direct media download (direct .mp3/.mp4/... URLs up to 300 MB are transcribed locally).\n"
-            "Fix: download the episode and select the audio file for local transcription, "
-            "or use the podcast RSS feed URL."
-        )
+        # Extension-less media URLs reach this branch because the path has no
+        # supported media suffix. Stream them through the bounded media path
+        # instead of failing.
+        return _media_transcript(url, log_callback=log_callback)
 
     if _looks_like_html(url, content_type, raw):
         return _web_transcript(raw, url, log_callback=log_callback)

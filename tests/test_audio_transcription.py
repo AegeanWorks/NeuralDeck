@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from audio_transcription import (
     AudioTranscriptionError,
     is_audio_file,
+    is_media_file,
     is_video_file,
     transcribe_audio,
 )
@@ -24,11 +25,13 @@ def _temp_audio(suffix=".mp3"):
 
 class TestAudioTranscription(unittest.TestCase):
     def test_audio_extensions_are_recognized(self):
-        for name in ("episode.mp3", "episode.M4A", "talk.wav", "video.mp4", "clip.webm"):
+        for name in ("episode.mp3", "episode.M4A", "talk.wav", "video.mp4", "clip.webm", "voice.oga"):
             with self.subTest(name=name):
                 self.assertTrue(is_audio_file(name))
+                self.assertTrue(is_media_file(name))
         self.assertFalse(is_audio_file("document.pdf"))
         self.assertFalse(is_audio_file("transcript.vtt"))
+        self.assertFalse(is_media_file("transcript.vtt"))
 
     def test_video_extensions_are_recognized_separately(self):
         for name in ("lecture.mp4", "clip.M4V", "talk.mkv", "clip.webm", "movie.mov", "old.avi", "talk.mpeg"):

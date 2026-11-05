@@ -606,16 +606,20 @@ class TestDirectTranscriptUrls(unittest.TestCase):
                 transcript_sources._download_media_to_temp("https://example.com/video.mp4")
         self.assertIn("web page", str(raised.exception))
 
-    def test_audio_content_type_without_a_media_extension_is_rejected(self):
+    def test_audio_content_type_without_a_media_extension_uses_media_path(self):
+        expected = transcript_sources.TranscriptResult(
+            text="hello", title="download", source_url="https://example.com/download", kind="audio",
+        )
         with patch.object(
             transcript_sources,
             "_fetch_url_bytes",
             return_value=(b"ID3", "audio/mpeg", "utf-8"),
-        ):
-            with self.assertRaises(TranscriptError) as raised:
-                fetch_transcript_from_url("https://example.com/download")
-        self.assertIn("local transcription", str(raised.exception))
-        self.assertIn("does not end in a supported audio/video extension", str(raised.exception))
+        ), patch.object(
+            transcript_sources, "_media_transcript", return_value=expected
+        ) as media:
+            result = fetch_transcript_from_url("https://example.com/download")
+        media.assert_called_once()
+        self.assertEqual(result, expected)
 
     def test_empty_url_is_rejected(self):
         with self.assertRaises(TranscriptError):
@@ -643,6 +647,46 @@ class TestDirectTranscriptUrls(unittest.TestCase):
         with patch.object(transcript_sources.urllib.request, "urlopen", return_value=response):
             with self.assertRaises(TranscriptError) as raised:
                 transcript_sources._fetch_url_bytes("https://example.com/feed", max_bytes=4)
+        self.assertIn("larger than", str(raised.exception))
+
+    def test_oga_url_uses_media_path(self):
+        expected = transcript_sources.TranscriptResult(
+            text="hello", title="clip.oga", source_url="https://example.com/clip.oga", kind="audio",
+        )
+        with patch.object(transcript_sources, "_media_transcript", return_value=expected) as media:
+            result = fetch_transcript_from_url("https://example.com/clip.oga")
+        media.assert_called_once_with("https://example.com/clip.oga", log_callback=None)
+        self.assertEqual(result, expected)
+
+    def test_large_pdf_url_uses_pdf_budget(self):
+        pdf_data = b"%PDF-1.4 fake"
+        seen = []
+
+        def fake_fetch(url, max_bytes=transcript_sources.MAX_SOURCE_BYTES, timeout=20):
+            seen.append(max_bytes)
+            if max_bytes == transcript_sources.MAX_SOURCE_BYTES:
+                raise TranscriptError("The transcript source is larger than 10 MB.")
+            return pdf_data, "application/pdf", "utf-8"
+
+        expected = transcript_sources.TranscriptResult(
+            text="pdf text", title="doc.pdf", source_url="https://example.com/doc.pdf", kind="pdf",
+        )
+        with patch.object(transcript_sources, "_fetch_url_bytes", side_effect=fake_fetch), patch.object(
+            transcript_sources, "_pdf_transcript", return_value=expected
+        ):
+            result = fetch_transcript_from_url("https://example.com/doc.pdf")
+        self.assertEqual(result, expected)
+        self.assertEqual(seen, [transcript_sources.MAX_PDF_BYTES])
+
+    def test_large_non_pdf_url_keeps_original_size_error(self):
+        def fake_fetch(url, max_bytes=transcript_sources.MAX_SOURCE_BYTES, timeout=20):
+            if max_bytes == transcript_sources.MAX_SOURCE_BYTES:
+                raise TranscriptError("The transcript source is larger than 10 MB.")
+            return b"not a pdf", "text/plain", "utf-8"
+
+        with patch.object(transcript_sources, "_fetch_url_bytes", side_effect=fake_fetch):
+            with self.assertRaises(TranscriptError) as raised:
+                fetch_transcript_from_url("https://example.com/big.txt")
         self.assertIn("larger than", str(raised.exception))
 
 
