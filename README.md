@@ -80,6 +80,7 @@ NeuralDeck/
 ├── screenshots/             <- README images
 ├── ui_review/               <- before/after UI change evidence
 ├── tests/                   <- regression suite
+├── start.bat                <- one-click launcher for Windows (double-click)
 ├── main.py
 ├── ui.py
 ├── document_processor.py
