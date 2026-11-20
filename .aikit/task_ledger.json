@@ -1,44 +1,23 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "audit-waves-0-30",
-    "last_phase": "in_progress",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1793722814.0586667,
-    "owner": "kilo:audit-NeuralDeck",
-    "started_by": "kilo:audit-NeuralDeck",
-    "continuations": [
+    "task_id": "ui-ux-overhaul-2026-11-20",
+    "last_phase": "phase 4",
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795206422.8550723,
+    "owner": "opencode:session",
+    "lease_until": 1795213622.8550723,
+    "started_by": "opencode:session",
+    "continuations": [],
+    "workspaces": [
       {
-        "agent": "unidentified",
-        "from": "kilo:audit-NeuralDeck",
-        "at": 1793722851.1274128
+        "name": "NeuralDeck",
+        "path": "projects/NeuralDeck"
       }
-    ],
-    "completed_at": 1793722851.127414
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "web-pdf-import-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[milestone 1/1] PDF URL and website article import delivered: PyPDF2 byte extraction, lxml article extraction with boilerplate removal, URL dispatch by content type/magic, UI import text update, tests, README and ADR-007. Tests 213 pass + 1 skip; checklists: passed (test, hygiene, guidelines, secrets). Live smoke: W3C dummy PDF and Wikipedia Memory article extracted cleanly.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793374505.5449047,
-      "timestamp_str": "2026-10-30 18:35:05",
-      "agent": "opencode:neuraldeck-media"
-    },
-    {
-      "task_id": "web-pdf-import-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'web-pdf-import-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793374506.13034,
-      "timestamp_str": "2026-10-30 18:35:06",
-      "agent": "opencode:neuraldeck-media"
-    },
     {
       "task_id": "preview-local-v1",
       "phase": "phase 2",
@@ -263,6 +242,50 @@
       "timestamp_str": "2026-11-03 19:20:51",
       "agent": "unidentified",
       "continued_from": "kilo:audit-NeuralDeck"
+    },
+    {
+      "task_id": "ui-ux-overhaul-2026-11-20",
+      "phase": "phase 1",
+      "phase_num": 1,
+      "description": "[1/2] Plan: 88 verified Generator/Settings UI improvements with before/after evidence",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795206371.3944685,
+      "timestamp_str": "2026-11-20 23:26:11",
+      "agent": "opencode:session",
+      "impact_assessment": {
+        "why": "Improve NeuralDeck UI with per-change visual proof",
+        "benefits": "clearer workflow, live status, review controls, diagnostics",
+        "risks": "contract: ui.py widgets; dependency: ttkbootstrap; concurrency: UI-thread callbacks; state: config/session writes",
+        "mitigation": "each change verified by live harness and retained PNG evidence"
+      },
+      "workspaces": [
+        {
+          "name": "NeuralDeck",
+          "path": "projects/NeuralDeck"
+        }
+      ]
+    },
+    {
+      "task_id": "ui-ux-overhaul-2026-11-20",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/2] Phase 4: 5/5 gates pass; 189 before/after PNGs; ui evidence recorded",
+      "files_affected": [
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl"
+      ],
+      "status": "in_progress",
+      "timestamp": 1795206422.8550723,
+      "timestamp_str": "2026-11-20 23:27:02",
+      "agent": "opencode:session",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "NeuralDeck",
+          "path": "projects/NeuralDeck"
+        }
+      ]
     }
   ]
 }
