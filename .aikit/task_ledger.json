@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "ui-ux-overhaul-2026-11-20",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795206422.8550723,
     "owner": "opencode:session",
     "lease_until": 1795213622.8550723,
@@ -15,26 +15,12 @@
         "name": "NeuralDeck",
         "path": "projects/NeuralDeck"
       }
-    ]
+    ],
+    "completed_at": 1795207083.0231307,
+    "completed_head": "d80d4ef16ad2010dba5d70d191b99355db22c40a",
+    "completed_tree": "74d15be399f4bf9b56a4415f44f6d3e8f1a1357b"
   },
   "checkpoints": [
-    {
-      "task_id": "preview-local-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Let Preview Transcript extract a selected local document/PDF/transcript/audio before generation and reuse that text, instead of requiring a full LLM run first.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793374788.228585,
-      "timestamp_str": "2026-10-30 18:39:48",
-      "agent": "opencode:neuraldeck-media",
-      "impact_assessment": {
-        "why": "The preview button is disabled for local files until generation, so extraction or transcription errors are discovered only after the user spends LLM time.",
-        "benefits": "Users can inspect the exact source text early; the preview extraction is cached and reused by Generate, avoiding duplicate work.",
-        "risks": "contract: UI state machine only; dependency: none; concurrency: extraction runs on a worker thread and modal preview opens on the UI thread; state: cached text stays in memory and is cleared when another file is selected.",
-        "mitigation": "Disable source-changing controls during preview, marshal every UI update with after(), and reuse the existing extraction dispatcher."
-      }
-    },
     {
       "task_id": "preview-local-v1",
       "phase": "phase 4",
@@ -286,6 +272,23 @@
           "path": "projects/NeuralDeck"
         }
       ]
+    },
+    {
+      "task_id": "ui-ux-overhaul-2026-11-20",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'ui-ux-overhaul-2026-11-20' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795207083.531351,
+      "timestamp_str": "2026-11-20 23:38:03",
+      "agent": "opencode:session",
+      "head": "d80d4ef16ad2010dba5d70d191b99355db22c40a",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
