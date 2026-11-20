@@ -8005,7 +8005,7 @@
             "reproducible": false,
             "fixable": true,
             "interaction": "",
-            "repaired": false,
+            "repaired": true,
             "source": "ast",
             "patch_old": "",
             "patch_new": ""
@@ -8025,7 +8025,7 @@
             "reproducible": false,
             "fixable": true,
             "interaction": "",
-            "repaired": false,
+            "repaired": true,
             "source": "ast",
             "patch_old": "",
             "patch_new": ""
@@ -8065,7 +8065,7 @@
             "reproducible": false,
             "fixable": true,
             "interaction": "",
-            "repaired": false,
+            "repaired": true,
             "source": "ast",
             "patch_old": "",
             "patch_new": ""
@@ -8105,7 +8105,7 @@
             "reproducible": true,
             "fixable": true,
             "interaction": "",
-            "repaired": false,
+            "repaired": true,
             "source": "ast",
             "patch_old": "",
             "patch_new": ""
@@ -8125,7 +8125,7 @@
             "reproducible": false,
             "fixable": true,
             "interaction": "",
-            "repaired": false,
+            "repaired": true,
             "source": "ast",
             "patch_old": "",
             "patch_new": ""
@@ -8245,7 +8245,7 @@
             "reproducible": true,
             "fixable": true,
             "interaction": "",
-            "repaired": false,
+            "repaired": true,
             "source": "ast",
             "patch_old": "",
             "patch_new": ""
@@ -8285,7 +8285,7 @@
             "reproducible": false,
             "fixable": true,
             "interaction": "",
-            "repaired": false,
+            "repaired": true,
             "source": "ast",
             "patch_old": "",
             "patch_new": ""
@@ -8311,7 +8311,64 @@
             "patch_new": ""
           }
         ],
-        "repairs": [],
+        "repairs": [
+          {
+            "code": "bare-except",
+            "path": "anki_integration.py",
+            "line": 59,
+            "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+            "test_name": "",
+            "applied": true
+          },
+          {
+            "code": "bare-except",
+            "path": "document_processor.py",
+            "line": 31,
+            "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+            "test_name": "",
+            "applied": true
+          },
+          {
+            "code": "bare-except",
+            "path": "document_processor.py",
+            "line": 97,
+            "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+            "test_name": "",
+            "applied": true
+          },
+          {
+            "code": "mutable-default",
+            "path": "document_processor.py",
+            "line": 247,
+            "summary": "already repaired by hand: a mutable default is shared by every call",
+            "test_name": "",
+            "applied": true
+          },
+          {
+            "code": "bare-except",
+            "path": "ui.py",
+            "line": 312,
+            "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+            "test_name": "",
+            "applied": true
+          },
+          {
+            "code": "mutable-default",
+            "path": "document_processor.py",
+            "line": 675,
+            "summary": "already repaired by hand: a mutable default is shared by every call",
+            "test_name": "",
+            "applied": true
+          },
+          {
+            "code": "bare-except",
+            "path": "document_processor.py",
+            "line": 100,
+            "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+            "test_name": "",
+            "applied": true
+          }
+        ],
         "counts": {
           "reliability": 17,
           "defect": 2
@@ -8880,7 +8937,7 @@
               "reproducible": false,
               "fixable": true,
               "interaction": "",
-              "repaired": false,
+              "repaired": true,
               "source": "ast",
               "patch_old": "",
               "patch_new": ""
@@ -8900,7 +8957,7 @@
               "reproducible": false,
               "fixable": true,
               "interaction": "",
-              "repaired": false,
+              "repaired": true,
               "source": "ast",
               "patch_old": "",
               "patch_new": ""
@@ -8940,7 +8997,7 @@
               "reproducible": false,
               "fixable": true,
               "interaction": "",
-              "repaired": false,
+              "repaired": true,
               "source": "ast",
               "patch_old": "",
               "patch_new": ""
@@ -8980,7 +9037,7 @@
               "reproducible": true,
               "fixable": true,
               "interaction": "",
-              "repaired": false,
+              "repaired": true,
               "source": "ast",
               "patch_old": "",
               "patch_new": ""
@@ -9000,7 +9057,7 @@
               "reproducible": false,
               "fixable": true,
               "interaction": "",
-              "repaired": false,
+              "repaired": true,
               "source": "ast",
               "patch_old": "",
               "patch_new": ""
@@ -9120,7 +9177,7 @@
               "reproducible": true,
               "fixable": true,
               "interaction": "",
-              "repaired": false,
+              "repaired": true,
               "source": "ast",
               "patch_old": "",
               "patch_new": ""
@@ -9160,7 +9217,7 @@
               "reproducible": false,
               "fixable": true,
               "interaction": "",
-              "repaired": false,
+              "repaired": true,
               "source": "ast",
               "patch_old": "",
               "patch_new": ""
@@ -9186,7 +9243,64 @@
               "patch_new": ""
             }
           ],
-          "repairs": [],
+          "repairs": [
+            {
+              "code": "bare-except",
+              "path": "anki_integration.py",
+              "line": 59,
+              "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+              "test_name": "",
+              "applied": true
+            },
+            {
+              "code": "bare-except",
+              "path": "document_processor.py",
+              "line": 31,
+              "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+              "test_name": "",
+              "applied": true
+            },
+            {
+              "code": "bare-except",
+              "path": "document_processor.py",
+              "line": 97,
+              "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+              "test_name": "",
+              "applied": true
+            },
+            {
+              "code": "mutable-default",
+              "path": "document_processor.py",
+              "line": 247,
+              "summary": "already repaired by hand: a mutable default is shared by every call",
+              "test_name": "",
+              "applied": true
+            },
+            {
+              "code": "bare-except",
+              "path": "ui.py",
+              "line": 312,
+              "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+              "test_name": "",
+              "applied": true
+            },
+            {
+              "code": "mutable-default",
+              "path": "document_processor.py",
+              "line": 675,
+              "summary": "already repaired by hand: a mutable default is shared by every call",
+              "test_name": "",
+              "applied": true
+            },
+            {
+              "code": "bare-except",
+              "path": "document_processor.py",
+              "line": 100,
+              "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+              "test_name": "",
+              "applied": true
+            }
+          ],
           "counts": {
             "reliability": 17,
             "defect": 2
@@ -9857,7 +9971,7 @@
         "reproducible": false,
         "fixable": true,
         "interaction": "",
-        "repaired": false,
+        "repaired": true,
         "source": "ast",
         "patch_old": "",
         "patch_new": ""
@@ -9877,7 +9991,7 @@
         "reproducible": false,
         "fixable": true,
         "interaction": "",
-        "repaired": false,
+        "repaired": true,
         "source": "ast",
         "patch_old": "",
         "patch_new": ""
@@ -9917,7 +10031,7 @@
         "reproducible": false,
         "fixable": true,
         "interaction": "",
-        "repaired": false,
+        "repaired": true,
         "source": "ast",
         "patch_old": "",
         "patch_new": ""
@@ -9957,7 +10071,7 @@
         "reproducible": true,
         "fixable": true,
         "interaction": "",
-        "repaired": false,
+        "repaired": true,
         "source": "ast",
         "patch_old": "",
         "patch_new": ""
@@ -9977,7 +10091,7 @@
         "reproducible": false,
         "fixable": true,
         "interaction": "",
-        "repaired": false,
+        "repaired": true,
         "source": "ast",
         "patch_old": "",
         "patch_new": ""
@@ -10097,7 +10211,7 @@
         "reproducible": true,
         "fixable": true,
         "interaction": "",
-        "repaired": false,
+        "repaired": true,
         "source": "ast",
         "patch_old": "",
         "patch_new": ""
@@ -10137,7 +10251,7 @@
         "reproducible": false,
         "fixable": true,
         "interaction": "",
-        "repaired": false,
+        "repaired": true,
         "source": "ast",
         "patch_old": "",
         "patch_new": ""
@@ -10163,7 +10277,64 @@
         "patch_new": ""
       }
     ],
-    "repairs": [],
+    "repairs": [
+      {
+        "code": "bare-except",
+        "path": "anki_integration.py",
+        "line": 59,
+        "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+        "test_name": "",
+        "applied": true
+      },
+      {
+        "code": "bare-except",
+        "path": "document_processor.py",
+        "line": 31,
+        "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+        "test_name": "",
+        "applied": true
+      },
+      {
+        "code": "bare-except",
+        "path": "document_processor.py",
+        "line": 97,
+        "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+        "test_name": "",
+        "applied": true
+      },
+      {
+        "code": "mutable-default",
+        "path": "document_processor.py",
+        "line": 247,
+        "summary": "already repaired by hand: a mutable default is shared by every call",
+        "test_name": "",
+        "applied": true
+      },
+      {
+        "code": "bare-except",
+        "path": "ui.py",
+        "line": 312,
+        "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+        "test_name": "",
+        "applied": true
+      },
+      {
+        "code": "mutable-default",
+        "path": "document_processor.py",
+        "line": 675,
+        "summary": "already repaired by hand: a mutable default is shared by every call",
+        "test_name": "",
+        "applied": true
+      },
+      {
+        "code": "bare-except",
+        "path": "document_processor.py",
+        "line": 100,
+        "summary": "already repaired by hand: a bare except catches every exception, including SystemExit",
+        "test_name": "",
+        "applied": true
+      }
+    ],
     "counts": {
       "reliability": 17,
       "defect": 2
