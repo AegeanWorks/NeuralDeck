@@ -20,6 +20,8 @@
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg">
 </p>
 
+> **Archived**: No further development is planned (archived 2026-11-21). This project is read-only; its GitHub repository is archived.
+
 ---
 
 ## Table of Contents

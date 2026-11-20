@@ -47,5 +47,11 @@
     "aegean-license",
     "commercial-license"
   ],
-  "ui_required": true
+  "ui_required": true,
+  "archived": true,
+  "archived_at": "2026-11-21",
+  "archive_reason": "No further development is planned",
+  "archive_repo": "AegeanWorks/NeuralDeck",
+  "archive_description": "[ARCHIVED] Your personal, privacy-focused AI assistant for creating Anki flashcards from any document.",
+  "archive_origin": "projects/NeuralDeck"
 }
