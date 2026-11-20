@@ -256,7 +256,7 @@
             "LICENSE",
             "README.md"
           ],
-          "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-25-577f7b921ada.md",
+          "packet": ".aikit/reforge.reviews/stage-run-1-25-577f7b921ada.md",
           "redacted": 0,
           "reason": "the answer held no findings",
           "coverage": {
@@ -334,7 +334,7 @@
               "README.md",
               "REUSE.toml"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-6-e6b474149d8b.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-6-e6b474149d8b.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -482,7 +482,7 @@
               "tests/test_ui_themes.py",
               "ui.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-7-a059a8687b9a.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-7-a059a8687b9a.md",
             "redacted": 0,
             "reason": "",
             "coverage": {
@@ -645,7 +645,7 @@
               "tests/test_pipeline.py",
               "ui.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-8-5507f8095ce2.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-8-5507f8095ce2.md",
             "redacted": 1,
             "reason": "the answer held no findings",
             "coverage": {
@@ -767,7 +767,7 @@
               "debug_llm.py",
               "document_processor.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-9-4e28aa15663a.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-9-4e28aa15663a.md",
             "redacted": 0,
             "reason": "",
             "coverage": {
@@ -921,7 +921,7 @@
               "tests/test_anki_integration_get_deck_names.py",
               "tests/test_document_processor_extra.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-10-796e9d534c0a.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-10-796e9d534c0a.md",
             "redacted": 0,
             "reason": "",
             "coverage": {
@@ -1075,7 +1075,7 @@
               ".github/FUNDING.yml",
               "README.md"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-11-9093af41a96a.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-11-9093af41a96a.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -1190,7 +1190,7 @@
               "document_processor.py",
               "ui.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-12-bcc3ba07eaee.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-12-bcc3ba07eaee.md",
             "redacted": 1,
             "reason": "the answer held no findings",
             "coverage": {
@@ -1307,7 +1307,7 @@
               "document_processor.py",
               "tests/test_pipeline_utils.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-13-5bbb959546d1.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-13-5bbb959546d1.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -1429,7 +1429,7 @@
               "pipeline_utils.py",
               "tests/test_pipeline_utils.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-14-88c7d06af58f.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-14-88c7d06af58f.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -1626,7 +1626,7 @@
               "document_processor.py",
               "tests/test_anki_addon_logic.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-15-898f8d1eae16.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-15-898f8d1eae16.md",
             "redacted": 1,
             "reason": "",
             "findings": [
@@ -1858,7 +1858,7 @@
               "tests/test_pipeline.py",
               "ui.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-16-a79f91f648d7.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-16-a79f91f648d7.md",
             "redacted": 2,
             "reason": "the answer held no findings",
             "coverage": {
@@ -2007,7 +2007,7 @@
               "tests/test_settings_io.py",
               "ui.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-17-c1e24a0c907d.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-17-c1e24a0c907d.md",
             "redacted": 1,
             "reason": "the answer held no findings",
             "coverage": {
@@ -2260,7 +2260,7 @@
               "tests/test_document_processor.py",
               "ui.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-18-84845ae8e1c2.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-18-84845ae8e1c2.md",
             "redacted": 1,
             "reason": "the answer held no findings",
             "coverage": {
@@ -2411,7 +2411,7 @@
               "document_processor.py",
               "tests/test_document_processor.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-19-73e75a5a2143.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-19-73e75a5a2143.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -2565,7 +2565,7 @@
             "status": "reviewed",
             "rejected": [],
             "files": [],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-20-a946d5ba9085.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-20-a946d5ba9085.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -2728,7 +2728,7 @@
               "anki_addon/__init__.py",
               "document_processor.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-21-b3f2c6d739a6.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-21-b3f2c6d739a6.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -3085,7 +3085,7 @@
               "tests/test_document_processor.py",
               "ui.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-22-bce8d3eb8091.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-22-bce8d3eb8091.md",
             "redacted": 2,
             "reason": "the answer held no findings",
             "coverage": {
@@ -3263,7 +3263,7 @@
               "anki_addon/manifest.json",
               "config.json"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-23-458ceb496adb.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-23-458ceb496adb.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -3443,7 +3443,7 @@
             "files": [
               "README.md"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-24-b1e17b74ef3c.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-24-b1e17b74ef3c.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -3628,7 +3628,7 @@
               "LICENSE",
               "README.md"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-1-25-577f7b921ada.md",
+            "packet": ".aikit/reforge.reviews/stage-run-1-25-577f7b921ada.md",
             "redacted": 0,
             "reason": "the answer held no findings",
             "coverage": {
@@ -3693,7 +3693,7 @@
             "tests/test_transcript_sources.py",
             "transcript_sources.py"
           ],
-          "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-2-3-1057d726f772.md",
+          "packet": ".aikit/reforge.reviews/stage-run-2-3-1057d726f772.md",
           "redacted": 0,
           "reason": "awaiting the reviewer's findings",
           "findings": []
@@ -3730,7 +3730,7 @@
               "tests/test_transcript_sources.py",
               "transcript_sources.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-2-1-9cc3e964edf7.md",
+            "packet": ".aikit/reforge.reviews/stage-run-2-1-9cc3e964edf7.md",
             "redacted": 0,
             "reason": "awaiting the reviewer's findings",
             "findings": []
@@ -3771,7 +3771,7 @@
               "transcript_sources.py",
               "ui.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-2-2-83124d28509e.md",
+            "packet": ".aikit/reforge.reviews/stage-run-2-2-83124d28509e.md",
             "redacted": 0,
             "reason": "awaiting the reviewer's findings",
             "findings": []
@@ -3812,7 +3812,7 @@
               "tests/test_transcript_sources.py",
               "transcript_sources.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-2-3-1057d726f772.md",
+            "packet": ".aikit/reforge.reviews/stage-run-2-3-1057d726f772.md",
             "redacted": 0,
             "reason": "awaiting the reviewer's findings",
             "findings": []
@@ -3873,7 +3873,7 @@
             "transcript_sources.py",
             "ui.py"
           ],
-          "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-3-1-bae505e96bd2.md",
+          "packet": ".aikit/reforge.reviews/stage-run-3-1-bae505e96bd2.md",
           "redacted": 0,
           "reason": "awaiting the reviewer's findings",
           "findings": []
@@ -3919,7 +3919,7 @@
               "transcript_sources.py",
               "ui.py"
             ],
-            "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-3-1-bae505e96bd2.md",
+            "packet": ".aikit/reforge.reviews/stage-run-3-1-bae505e96bd2.md",
             "redacted": 0,
             "reason": "awaiting the reviewer's findings",
             "findings": []
@@ -3973,7 +3973,7 @@
         "transcript_sources.py",
         "ui.py"
       ],
-      "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-3-1-bae505e96bd2.md",
+      "packet": ".aikit/reforge.reviews/stage-run-3-1-bae505e96bd2.md",
       "redacted": 0,
       "reason": "awaiting the reviewer's findings",
       "findings": []
@@ -4019,7 +4019,7 @@
           "transcript_sources.py",
           "ui.py"
         ],
-        "packet": "C:\\Users\\Yunus-Emre\\Desktop\\portable_agent_kit\\projects\\NeuralDeck\\.aikit\\reforge.reviews\\stage-run-3-1-bae505e96bd2.md",
+        "packet": ".aikit/reforge.reviews/stage-run-3-1-bae505e96bd2.md",
         "redacted": 0,
         "reason": "awaiting the reviewer's findings",
         "findings": []

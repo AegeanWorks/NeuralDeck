@@ -1,23 +1,27 @@
 # Codebase Map & Symbol Catalog 🗺️
 
 > **AUTO-GENERATED & VERIFIED BY `scripts/update_knowledge_base.py`**
-> This document provides an automated, up-to-date registry of all modules, classes, and exported functions across this repository.
+> This document catalogues Python modules, classes, and exported functions. See Map Coverage for any stack it does not index.
 
 ---
 
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `32`
 - **Total Classes**: `67`
-- **Total Top-Level Functions**: `113`
-- **Total Class Methods**: `331`
-- **Total Source Lines**: `7621`
+- **Total Top-Level Functions**: `116`
+- **Total Class Methods**: `382`
+- **Total Source Lines**: `8707`
+
+## 🧭 Map Coverage
+- **Indexed**: python (`32` module(s))
+- **Not indexed by this map**: none (no non-Python source files were found)
 
 ---
 
 ## 📦 Modules & Exported Symbols
 
 ### [`anki_addon/__init__.py`](anki_addon/__init__.py)
-**Size**: `247` lines (`9787` bytes)
+**Size**: `247` lines
 
 **Classes:**
 - `class AnkiBridgeHandler`
@@ -35,7 +39,7 @@
 ---
 
 ### [`anki_integration.py`](anki_integration.py)
-**Size**: `94` lines (`3644` bytes)
+**Size**: `94` lines
 
 **Functions:**
 - `def _get_no_proxy_opener()`
@@ -48,20 +52,21 @@
 ### [`audio_transcription.py`](audio_transcription.py)
 > *Optional local podcast/video transcription through faster-whisper.*
 
-**Size**: `89` lines (`3506` bytes)
+**Size**: `96` lines
 
 **Classes:**
 - `class AudioTranscriptionError` - *A user-facing local transcription failure with a Why/Fix message.*
 
 **Functions:**
 - `def is_audio_file(file_path)` - *Return True when the path has a supported audio/video extension.*
+- `def is_media_file(file_path)` - *Alias for is_audio_file: audio and video share the local path.*
 - `def is_video_file(file_path)` - *Return True when the path has a supported video container extension.*
 - `def transcribe_audio(file_path, model_size, log_callback, stop_callback)` - *Transcribe a local audio/video file and return plain text.*
 
 ---
 
 ### [`debug_anki.py`](debug_anki.py)
-**Size**: `41` lines (`1724` bytes)
+**Size**: `41` lines
 
 **Functions:**
 - `def test_connection()`
@@ -69,7 +74,7 @@
 ---
 
 ### [`debug_llm.py`](debug_llm.py)
-**Size**: `46` lines (`1724` bytes)
+**Size**: `46` lines
 
 **Functions:**
 - `def test_llm_generation()`
@@ -77,7 +82,7 @@
 ---
 
 ### [`document_processor.py`](document_processor.py)
-**Size**: `1003` lines (`43871` bytes)
+**Size**: `1003` lines
 
 **Functions:**
 - `def _extract_text_from_pdf_reader(reader, log_callback)` - *Extract text from an already opened pypdf reader.*
@@ -102,7 +107,7 @@
 ---
 
 ### [`main.py`](main.py)
-**Size**: `8` lines (`129` bytes)
+**Size**: `8` lines
 
 **Functions:**
 - `def main()`
@@ -110,7 +115,7 @@
 ---
 
 ### [`pipeline_utils.py`](pipeline_utils.py)
-**Size**: `144` lines (`4696` bytes)
+**Size**: `144` lines
 
 **Classes:**
 - `class PipelineStats`
@@ -141,7 +146,7 @@
 ### [`settings_io.py`](settings_io.py)
 > *Environment-aware paths and crash-safe persistence for NeuralDeck settings.*
 
-**Size**: `378` lines (`12486` bytes)
+**Size**: `378` lines
 
 **Functions:**
 - `def application_dir(module_file, frozen, executable)` - *Return the persistent application directory, including for frozen builds.*
@@ -164,7 +169,7 @@
 ---
 
 ### [`tests/mocks.py`](tests/mocks.py)
-**Size**: `26` lines (`798` bytes)
+**Size**: `26` lines
 
 **Classes:**
 - `class MockLLM`
@@ -178,12 +183,12 @@
 ---
 
 ### [`tests/run_tests.py`](tests/run_tests.py)
-**Size**: `14` lines (`364` bytes)
+**Size**: `14` lines
 
 ---
 
 ### [`tests/test_anki_addon_logic.py`](tests/test_anki_addon_logic.py)
-**Size**: `133` lines (`4090` bytes)
+**Size**: `133` lines
 
 **Classes:**
 - `class MockNote`
@@ -198,7 +203,7 @@
 ---
 
 ### [`tests/test_anki_addon_media.py`](tests/test_anki_addon_media.py)
-**Size**: `227` lines (`7995` bytes)
+**Size**: `227` lines
 
 **Classes:**
 - `class MockNote`
@@ -228,7 +233,7 @@
 ---
 
 ### [`tests/test_anki_integration.py`](tests/test_anki_integration.py)
-**Size**: `75` lines (`3206` bytes)
+**Size**: `75` lines
 
 **Classes:**
 - `class TestAnkiIntegration`
@@ -245,7 +250,7 @@
 ---
 
 ### [`tests/test_anki_integration_get_deck_names.py`](tests/test_anki_integration_get_deck_names.py)
-**Size**: `90` lines (`3284` bytes)
+**Size**: `90` lines
 
 **Classes:**
 - `class TestGetDeckNames`
@@ -262,7 +267,7 @@
 ---
 
 ### [`tests/test_audio_transcription.py`](tests/test_audio_transcription.py)
-**Size**: `143` lines (`5127` bytes)
+**Size**: `146` lines
 
 **Classes:**
 - `class TestAudioTranscription`
@@ -281,7 +286,7 @@
 ---
 
 ### [`tests/test_deterministic.py`](tests/test_deterministic.py)
-**Size**: `83` lines (`3855` bytes)
+**Size**: `83` lines
 
 **Classes:**
 - `class TestDeterministicMode`
@@ -292,7 +297,7 @@
 ---
 
 ### [`tests/test_document_processor.py`](tests/test_document_processor.py)
-**Size**: `308` lines (`12258` bytes)
+**Size**: `308` lines
 
 **Classes:**
 - `class TestDocumentProcessor`
@@ -324,7 +329,7 @@
 ---
 
 ### [`tests/test_document_processor_extra.py`](tests/test_document_processor_extra.py)
-**Size**: `253` lines (`10155` bytes)
+**Size**: `253` lines
 
 **Classes:**
 - `class TestExtractTextFromDocument`
@@ -361,7 +366,7 @@
 ---
 
 ### [`tests/test_failure_isolation.py`](tests/test_failure_isolation.py)
-**Size**: `73` lines (`3000` bytes)
+**Size**: `73` lines
 
 **Classes:**
 - `class TestFailureIsolation`
@@ -371,7 +376,7 @@
 ---
 
 ### [`tests/test_pipeline.py`](tests/test_pipeline.py)
-**Size**: `95` lines (`3678` bytes)
+**Size**: `95` lines
 
 **Classes:**
 - `class TestFullPipeline`
@@ -382,7 +387,7 @@
 ---
 
 ### [`tests/test_pipeline_utils.py`](tests/test_pipeline_utils.py)
-**Size**: `194` lines (`7642` bytes)
+**Size**: `194` lines
 
 **Classes:**
 - `class TestPipelineStats`
@@ -409,7 +414,7 @@
 ---
 
 ### [`tests/test_settings_io.py`](tests/test_settings_io.py)
-**Size**: `433` lines (`18832` bytes)
+**Size**: `433` lines
 
 **Classes:**
 - `class TestApplicationDir`
@@ -482,7 +487,7 @@
 ---
 
 ### [`tests/test_transcript_formats.py`](tests/test_transcript_formats.py)
-**Size**: `111` lines (`3803` bytes)
+**Size**: `111` lines
 
 **Classes:**
 - `class TestTranscriptFormats`
@@ -503,7 +508,7 @@
 ---
 
 ### [`tests/test_transcript_sources.py`](tests/test_transcript_sources.py)
-**Size**: `650` lines (`29922` bytes)
+**Size**: `694` lines
 
 **Classes:**
 - `class _FakeTranscript`
@@ -563,10 +568,13 @@
   - Method `.test_media_download_limit_is_enforced()`
   - Method `.test_truncated_media_download_cleans_the_temp_file()`
   - Method `.test_media_url_returning_html_is_rejected()`
-  - Method `.test_audio_content_type_without_a_media_extension_is_rejected()`
+  - Method `.test_audio_content_type_without_a_media_extension_uses_media_path()`
   - Method `.test_empty_url_is_rejected()`
   - Method `.test_http_error_is_wrapped()`
   - Method `.test_oversized_download_is_refused()`
+  - Method `.test_oga_url_uses_media_path()`
+  - Method `.test_large_pdf_url_uses_pdf_budget()`
+  - Method `.test_large_non_pdf_url_keeps_original_size_error()`
 
 **Functions:**
 - `def _fake_youtube_api(transcript_list)`
@@ -574,7 +582,7 @@
 ---
 
 ### [`tests/test_ui_media.py`](tests/test_ui_media.py)
-**Size**: `35` lines (`1283` bytes)
+**Size**: `35` lines
 
 **Classes:**
 - `class TestPodcastChooserShortcuts`
@@ -584,7 +592,7 @@
 ---
 
 ### [`tests/test_ui_themes.py`](tests/test_ui_themes.py)
-**Size**: `21` lines (`553` bytes)
+**Size**: `21` lines
 
 **Classes:**
 - `class TestThemeAllowlist`
@@ -593,7 +601,7 @@
 ---
 
 ### [`tests/test_web_extraction.py`](tests/test_web_extraction.py)
-**Size**: `87` lines (`4093` bytes)
+**Size**: `87` lines
 
 **Classes:**
 - `class TestArticleExtraction`
@@ -610,7 +618,7 @@
 ### [`transcript_formats.py`](transcript_formats.py)
 > *Parse transcript formats into the plain text NeuralDeck sends to the LLM.*
 
-**Size**: `228` lines (`7625` bytes)
+**Size**: `228` lines
 
 **Classes:**
 - `class _HTMLTextExtractor` - *Collect readable text while ignoring scripts, styles and markup.*
@@ -638,7 +646,7 @@
 ### [`transcript_sources.py`](transcript_sources.py)
 > *Fetch card source transcripts from YouTube, podcast feeds and URLs.*
 
-**Size**: `925` lines (`35774` bytes)
+**Size**: `948` lines
 
 **Classes:**
 - `class TranscriptError` - *A user-facing transcript failure that explains why and how to fix it.*
@@ -685,6 +693,7 @@
 - `def _looks_like_html(url, content_type, text)`
 - `def _url_filename(url)`
 - `def _looks_like_media_url(url)`
+- `def _is_pdf_url(url)`
 - `def _remove_temp(path)`
 - `def _download_media_to_temp(url, log_callback, max_bytes)` - *Stream a bounded audio/video URL to a temporary local file.*
 - `def _media_transcript(url, log_callback)`
@@ -695,18 +704,20 @@
 ---
 
 ### [`ui.py`](ui.py)
-**Size**: `1228` lines (`55526` bytes)
+**Size**: `2237` lines
 
 **Classes:**
 - `class TextWidgetHandler` - *Custom logging handler that writes to a Tkinter ScrolledText widget thread-safely.*
   - Method `.__init__(text_widget, root)`
   - Method `.emit(record)`
-  - Method `.append_log(msg)`
+  - Method `.append_log(msg, level)`
 - `class CardReviewRow` - *A row representing a single generated card for review.*
-  - Method `.__init__(parent, question, answer, assigned_deck, available_decks, quote, on_remove)`
+  - Method `.__init__(parent, question, answer, assigned_deck, available_decks, quote, on_remove, on_approve, index)`
   - Method `.get_data()`
   - Method `.show_source()`
   - Method `.remove_row()`
+  - Method `._on_approve()`
+  - Method `._copy_card()`
 - `class AnkiGeneratorUI`
   - Method `.__init__()`
   - Method `.setup_logging()`
@@ -715,13 +726,42 @@
   - Method `.load_config()`
   - Method `._read_int(var, default, minimum, maximum)` - *Read a numeric Tk variable without letting an empty field crash the UI.*
   - Method `._read_float(var, default, minimum, maximum)` - *Read a decimal Tk variable without letting an empty field crash the UI.*
+  - Method `._mark_settings_dirty()` - *Flag the Settings form as having edits that are not saved yet.*
+  - Method `._refresh_prompt_count()`
+  - Method `._on_prompt_modified(event)` - *Handle the Text widget's <<Modified>> event without re-triggering it.*
+  - Method `._refresh_settings_status()` - *Show a coloured saved/unsaved state in the Settings footer.*
+  - Method `.reset_settings_defaults()` - *Restore the shipped defaults from config.example.json after confirming.*
   - Method `.save_settings_ui()`
   - Method `.save_config()`
   - Method `.apply_theme(event)`
+  - Method `.toggle_api_key_visibility()` - *Reveal or re-mask the API key without changing the stored value.*
+  - Method `.test_llm_connection()` - *Probe the configured LLM endpoint off the UI thread.*
+  - Method `._reset_llm_status()` - *A changed endpoint/key invalidates the previous probe result.*
+  - Method `._finish_llm_test(ok, message)` - *Restore the test button, record the result and report it.*
+  - Method `.clear_log()` - *Clear only the on-screen console; session.log keeps the full history.*
+  - Method `.show_shortcuts()` - *List the keyboard shortcuts in one place.*
+  - Method `._jump_to_first_match(event)` - *Enter scrolls the console to the first highlighted match.*
+  - Method `._clear_log_search()`
+  - Method `._search_log(event)` - *Highlight every match of the current search text in the console.*
+  - Method `.toggle_errors_only()` - *Hide info/warning lines so only errors remain visible.*
+  - Method `.toggle_log_autoscroll()` - *Stop new log lines from stealing the user's scroll position.*
+  - Method `.toggle_log_panel()` - *Collapse the console to give the review list more room.*
+  - Method `.toggle_log_wrap()` - *Switch long log lines between wrapping and horizontal scrolling.*
+  - Method `.toggle_log_timestamps()` - *Prefix on-screen log lines with the time for troubleshooting.*
+  - Method `.copy_log()` - *Copy the log (or just the errors) for a bug report.*
+  - Method `._llm_startup_check()` - *Probe the configured LLM endpoint once at startup, off the UI thread.*
+  - Method `._set_llm_startup_result(ok)`
+  - Method `.retry_anki_connection()` - *Re-run the deck fetch so starting Anki later needs no app restart.*
   - Method `.fetch_decks()`
   - Method `._fetch_decks_thread()`
   - Method `.update_deck_list_ui()`
+  - Method `._clear_deck_filter()`
+  - Method `._filter_decks(event)` - *Show only decks whose name contains the current filter text.*
+  - Method `._refresh_deck_selected_label()`
+  - Method `._set_all_decks(selected)` - *Select or clear every discovered deck in one action.*
   - Method `.save_deck_selection()`
+  - Method `.clear_source()` - *Forget the selected file/URL without discarding reviewed cards.*
+  - Method `._set_source_hint(ready)` - *Switch the source box's subtitle between format help and ready state.*
   - Method `.select_file()`
   - Method `.import_media_url()` - *Fetch a transcript, article or PDF from a URL.*
   - Method `._import_media_url_worker(url, language)`
@@ -734,13 +774,30 @@
   - Method `._apply_imported_transcript(result)`
   - Method `._reset_import_controls()`
   - Method `.preview_transcript()` - *Show the text that will be sent to the LLM, extracting it if needed.*
+  - Method `._check_local_source_size(file_path)` - *Enforce the 50 MB document guard and the 300 MB local media cap.*
   - Method `._preview_file_worker(file_path)`
   - Method `._preview_ready(file_path, text)`
   - Method `._preview_failed(exc)`
   - Method `._set_preview_busy(busy)`
+  - Method `._on_generator_density_changed(event)` - *Persist a density change made from the Generator quick control.*
+  - Method `._shortcut_select(event)` - *Ctrl+O opens the source chooser when that action is available.*
+  - Method `._shortcut_find(event)` - *Ctrl+F focuses and selects the log search field.*
+  - Method `._shortcut_preview(event)` - *Ctrl+P opens the transcript preview when a source is available.*
+  - Method `._shortcut_generate(event)` - *Ctrl+Enter starts generation when the button is enabled.*
   - Method `.start_processing()`
   - Method `.run_process(file_path, target_lang, api_url, api_key, model, temperature, max_tokens, prompt_style, deck_names, context_window, concurrency, card_density, filter_yes_no, exclude_trivia, smart_deck_match, ai_refinement, deterministic_mode, preloaded_text)`
   - Method `._finish_processing()`
+  - Method `.set_generation_phase(phase)` - *Update the busy-state label and title without changing the flag.*
+  - Method `._refresh_status()` - *Keep the status bar in sync with cards, approvals and Anki state.*
+  - Method `.show_generation_summary(text)` - *Display the completed run's stats above the review list.*
+  - Method `.copy_cards()` - *Copy the currently visible cards as Q/A text for sharing.*
+  - Method `._on_approved_filter()`
+  - Method `._on_pending_filter()`
+  - Method `._clear_filters(event)` - *Escape clears both active filters in one action.*
+  - Method `._clear_card_filter()`
+  - Method `._filter_cards(event)` - *Show only cards whose question or answer contains the filter text.*
+  - Method `._refresh_card_indices()`
+  - Method `._sync_review_placeholder()` - *Keep the review pane, bulk actions and status bar in step with the cards.*
   - Method `.clear_review_area()`
   - Method `.add_manual_card()` - *Adds a blank card row for manual authoring.*
   - Method `.append_cards_to_review(new_cards)`
@@ -755,6 +812,7 @@
   - Method `.sync_to_anki()`
 
 **Functions:**
+- `def themed_text_options(style)` - *Tk Text colours taken from the active ttkbootstrap theme.*
 - `def choose_podcast_episode(parent, feed)` - *Show the feed's transcribed episodes and return the chosen reference.*
 - `def show_text_preview(parent, title, text)` - *Display a read-only transcript preview without modifying the source.*
 
@@ -763,7 +821,7 @@
 ### [`web_extraction.py`](web_extraction.py)
 > *Readable article extraction from HTML pages.*
 
-**Size**: `139` lines (`4832` bytes)
+**Size**: `139` lines
 
 **Classes:**
 - `class WebArticle`
