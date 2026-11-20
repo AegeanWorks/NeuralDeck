@@ -78,6 +78,7 @@ NeuralDeck/
 ├── .github/
 ├── anki_addon/              <- Anki bridge add-on
 ├── screenshots/             <- README images
+├── ui_review/               <- before/after UI change evidence
 ├── tests/                   <- regression suite
 ├── main.py
 ├── ui.py
