@@ -1,0 +1,32 @@
+[
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "88 UI changes already committed; verified retroactively from dcf2152 with 189 before/after PNGs in ui_review/",
+    "baseline_commit": "dcf2152",
+    "contract_hash": "50a816632ca38520a3b200f48936b16139a583aa69a4153c99224e9a56aa8e41",
+    "started_at": 1795206186.914034,
+    "finished_at": 1795206258.3705626,
+    "strikes": 0,
+    "reviewer": "AI Assistant",
+    "review": {
+      "reviewer": "AI Assistant",
+      "surface": "app",
+      "surface_digest": "90179a4c14b72a0a87cdd32f7824e1aa69c66b4254032c9eaab5bbb4611d25c3",
+      "snapshot_digest": "",
+      "snapshot_entries": 0,
+      "visual": true,
+      "reviewed_at": 1795206258.3705647
+    },
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "90179a4c14b72a0a87cdd32f7824e1aa69c66b4254032c9eaab5bbb4611d25c3",
+    "baseline_digest": "54648b09e374ad56f600ad96aa2d8724f99dcae5de1a0de203b359bdb7b12b01"
+  }
+]
